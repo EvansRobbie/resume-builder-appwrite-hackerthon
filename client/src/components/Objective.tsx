@@ -47,8 +47,8 @@ const Objective = () => {
         toast.success("Objective Details Updated Successfully");
       } else {
         const promise = databases.createDocument('648442d60bc9b3a9c1fe','6484b0381a26ad2727da', uuidv4(), values);
-        promise.then(function (response:any) {
-          console.log(response);
+        promise.then(function () {
+          // console.log(response);
           toast.success("Objective details Saved Successfully");
           navigate("/create-resume");
 
@@ -67,8 +67,8 @@ const Objective = () => {
   const handleDelete = async () => {
     try {
       const promise = databases.deleteDocument("648442d60bc9b3a9c1fe",'6484b0381a26ad2727da', documentId);
-      promise.then(function(response:any){
-        console.log(response)
+      promise.then(function(){
+        // console.log(response)
         toast.success("Objective details Deleted Succesfully");
         navigate("/create-resume");
       },

@@ -1,25 +1,31 @@
 import { useState, useEffect } from "react";
 import Editor from "./Editor";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
+import { databases } from "../appWrite/AppWrite";
+import {v4 as uuidv4} from 'uuid'
 
 const Skills = () => {
   const { subpages } = useParams();
   const navigate = useNavigate();
   const [content, setContent] = useState("");
   const [isEdit, setIsEdit] = useState(false);
+  const [documentId, setDocumentId] = useState<string>('')
   useEffect(() => {
     if (subpages === "skills") {
       const fetchData = async () => {
         try {
-          const { data } = await axios.get("/skills");
-          if (data) {
-            setContent(data.content);
+          const response =  await databases.listDocuments('648442d60bc9b3a9c1fe','6484b5b4852c36436637')
+          const documents = response.documents;
+          // console.log(documents[0].name)
+          if (documents.length > 0) {
+            const document = documents[0] 
+            // console.log(document.content)
+            setContent(document.content);
+            setDocumentId(document.$id)
             setIsEdit(true);
           }
-          // console.log(data)
         } catch (e) {
           console.log("Failed to fetch Skills details", e);
           toast.error("Failed to fetch Skills details");
@@ -32,14 +38,24 @@ const Skills = () => {
     e.preventDefault();
     try {
       if (isEdit) {
-        await axios.put("/skills", { content });
-        toast.success(" Details Updated Successfully");
+        // delete values.$databaseId;
+        // delete values.$collectionId;
+        await databases.updateDocument('648442d60bc9b3a9c1fe','6484b5b4852c36436637', documentId, {content})
+        toast.success("Skills Details Updated Successfully");
+        navigate("/create-resume");
       } else {
-        await axios.post("/skills", { content });
-        toast.success("Details Saved Successfully");
-        setContent("");
-        navigate("/create-resume/skills");
-      }
+        const promise = databases.createDocument('648442d60bc9b3a9c1fe','6484b5b4852c36436637', uuidv4(), {content});
+        promise.then(function () {
+          // console.log(response);
+          toast.success("Skills details Saved Successfully");
+          navigate("/create-resume");
+          setContent('')
+        }, function (error:any) {
+          console.log(error);
+          toast.error(error.message);
+        });
+      } 
+      
     } catch (e) {
       console.log("Failed To Submit Details", e);
       toast.error("Failed To Submit Details");
@@ -47,13 +63,18 @@ const Skills = () => {
   };
   const handleDelete = async () => {
     try {
-      await axios.delete("/skills");
-      setContent("");
-      toast.success("Details Deleted Succesfully");
-      navigate("/create-resume/skills");
+      const promise = databases.deleteDocument("648442d60bc9b3a9c1fe",'6484b5b4852c36436637', documentId);
+      promise.then(function(){
+        // console.log(response)
+        toast.success("Skills details Deleted Succesfully");
+        navigate("/create-resume");
+      },
+      function({error}:any){
+        console.log(error.message)
+      })
     } catch (e) {
       console.log("Failed to delete skills Details");
-      toast.error("Failed to Delete details");
+      toast.error("Failed to Delete skills details");
     }
   };
   return (
