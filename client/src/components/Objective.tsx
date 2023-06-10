@@ -1,5 +1,4 @@
 import { Form, Formik } from "formik";
-import axios from "axios";
 import FormikControl from "../forms/FormikControl";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -21,7 +20,7 @@ const Objective = () => {
     if (subpages === "objective") {
       const fetchData = async () => {
         try {
-          const response =  await databases.listDocuments('648442d60bc9b3a9c1fe','64844324db523d3d7e26')
+          const response =  await databases.listDocuments('648442d60bc9b3a9c1fe','6484b0381a26ad2727da')
           const documents = response.documents;
           // console.log(documents[0].name)
           if (documents.length > 0) {
@@ -32,8 +31,8 @@ const Objective = () => {
             setIsEdit(true);
           }
         } catch (e) {
-          console.log("Failed to fetch Objrctive details", e);
-          toast.error("Failed to fetch Objrctive details");
+          console.log("Failed to fetch Objective details", e);
+          toast.error("Failed to fetch Objective details");
         }
       };
       fetchData();
@@ -44,13 +43,13 @@ const Objective = () => {
       if (isEditing) {
         delete values.$databaseId;
         delete values.$collectionId;
-        await databases.updateDocument('648442d60bc9b3a9c1fe','64844324db523d3d7e26', documentId, values)
-        toast.success(" Details Updated Successfully");
+        await databases.updateDocument('648442d60bc9b3a9c1fe','6484b0381a26ad2727da', documentId, values)
+        toast.success("Objective Details Updated Successfully");
       } else {
-        const promise = databases.createDocument('648442d60bc9b3a9c1fe','64844324db523d3d7e26', uuidv4(), values);
+        const promise = databases.createDocument('648442d60bc9b3a9c1fe','6484b0381a26ad2727da', uuidv4(), values);
         promise.then(function (response:any) {
           console.log(response);
-          toast.success("Details Saved Successfully");
+          toast.success("Objective details Saved Successfully");
           navigate("/create-resume");
 
         }, function (error:any) {
@@ -67,12 +66,18 @@ const Objective = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete("/objective");
-      toast.success("Details Deleted Succesfully");
-      navigate("/create-resume");
+      const promise = databases.deleteDocument("648442d60bc9b3a9c1fe",'6484b0381a26ad2727da', documentId);
+      promise.then(function(response:any){
+        console.log(response)
+        toast.success("Objective details Deleted Succesfully");
+        navigate("/create-resume");
+      },
+      function({error}:any){
+        console.log(error.message)
+      })
     } catch (e) {
       console.log("Failed to delete Objective Details");
-      toast.error("Failed to Delete details");
+      toast.error("Failed to Delete Objective details");
     }
   };
   return (
