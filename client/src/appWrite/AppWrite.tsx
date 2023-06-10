@@ -6,5 +6,5 @@ client
 export const account = new Account(client);
 
 // Database
-export const databases = new Databases(client, '648442d60bc9b3a9c1fe')
+export const databases = new Databases(client)
 

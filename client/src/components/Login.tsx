@@ -9,7 +9,6 @@ import * as Yup from "yup";
 import { account } from "../appWrite/AppWrite";
 // import Button from "./Button"
 // import { useUserContext } from '../context/UserContext'
-
 const Login = ({
   handleToggle,
   setLoginModal,  

@@ -6,9 +6,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
 import {v4 as uuidv4} from 'uuid'
+// import { client } from "../appWrite/AppWrite";
+import {Databases,Client, Permission, Role } from "appwrite";
 import { databases } from "../appWrite/AppWrite";
-
-const Personal = () => {
+const Personal = ( ) => {
   const { subpages } = useParams();
   const navigate = useNavigate();
   //  console.log(params)
@@ -39,18 +40,27 @@ const Personal = () => {
       fetchData();
     }
   }, [subpages]);
+ 
   const onSubmit = async (values: any, onSubmitProps: any) => {
+    console.log(values)
     try {
       if (isEdit) {
         await axios.put("/personal", values);
         toast.success(" Details Updated Successfully");
       } else {
-       const promise = await databases.createDocument('64844324db523d3d7e26', uuidv4(), values);
-        toast.success("Details Saved Successfully");
-        console.log(promise)
-        onSubmitProps.resetForm();
-      }
-      navigate("/create-resume");
+         const promise = databases.createDocument('648442d60bc9b3a9c1fe','64844324db523d3d7e26', uuidv4(), values);
+          promise.then(function (response:any) {
+            console.log(response);
+            toast.success("Details Saved Successfully");
+  
+          }, function (error:any) {
+            console.log(error);
+          });
+          onSubmitProps.resetForm();
+          navigate("/create-resume");
+
+       }
+      
     } catch (e) {
       console.log("Failed To Submit Details", e);
       toast.error("Failed To Submit Details");
