@@ -80,8 +80,8 @@ const Personal = ( ) => {
         toast.success("Details Deleted Succesfully");
         navigate("/create-resume");
       },
-      function({response}:any){
-        console.log(response.message)
+      function({error}:any){
+        console.log(error.message)
       })
     } catch (e) {
       console.log("Failed to delete Personal Details");
