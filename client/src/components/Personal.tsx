@@ -45,7 +45,7 @@ const Personal = () => {
         await axios.put("/personal", values);
         toast.success(" Details Updated Successfully");
       } else {
-       const promise = await databases.createDocument('64844324db523d3d7e26', uuidv4(),{ values});
+       const promise = await databases.createDocument('64844324db523d3d7e26', uuidv4(), values);
         toast.success("Details Saved Successfully");
         console.log(promise)
         onSubmitProps.resetForm();
