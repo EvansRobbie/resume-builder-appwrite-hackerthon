@@ -7,4 +7,3 @@ export const account = new Account(client);
 
 // Database
 export const databases = new Databases(client)
-
