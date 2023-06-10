@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
 import { Form, Formik } from "formik";
-import axios from "axios";
 import FormikControl from "../forms/FormikControl";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
 import {v4 as uuidv4} from 'uuid'
-// import { client } from "../appWrite/AppWrite";
-import {Databases,Client, Permission, Role } from "appwrite";
 import { databases } from "../appWrite/AppWrite";
 const Personal = ( ) => {
   const { subpages } = useParams();
   const navigate = useNavigate();
   //  console.log(params)
-  const [isEdit, setIsEdit] = useState(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [documentId, setDocumentId] = useState<string>('')
   // const [ready, set]
   const [initialValues, setInitialValues] = useState({
     name: "",
@@ -27,9 +25,14 @@ const Personal = ( ) => {
     if (subpages === "personal") {
       const fetchData = async () => {
         try {
-          const { data } = await axios.get("/personal");
-          if (data) {
-            setInitialValues(data);
+          const response =  await databases.listDocuments('648442d60bc9b3a9c1fe','64844324db523d3d7e26')
+          const documents = response.documents;
+          // console.log(documents[0].name)
+          if (documents.length > 0) {
+            const document = documents[0] 
+            // console.log(document)
+            setInitialValues(document);
+            setDocumentId(document.$id)
             setIsEdit(true);
           }
         } catch (e) {
@@ -40,13 +43,15 @@ const Personal = ( ) => {
       fetchData();
     }
   }, [subpages]);
- 
+//  console.log(documendId)
   const onSubmit = async (values: any, onSubmitProps: any) => {
-    console.log(values)
+    // console.log(values)
     try {
       if (isEdit) {
-        await axios.put("/personal", values);
-        toast.success(" Details Updated Successfully");
+        delete values.$databaseId;
+        delete values.$collectionId;
+         await databases.updateDocument('648442d60bc9b3a9c1fe','64844324db523d3d7e26', documentId, values)
+          toast.success(" Details Updated Successfully");
       } else {
          const promise = databases.createDocument('648442d60bc9b3a9c1fe','64844324db523d3d7e26', uuidv4(), values);
           promise.then(function (response:any) {
@@ -55,6 +60,7 @@ const Personal = ( ) => {
   
           }, function (error:any) {
             console.log(error);
+            toast.error(error);
           });
           onSubmitProps.resetForm();
           navigate("/create-resume");
@@ -66,11 +72,17 @@ const Personal = ( ) => {
       toast.error("Failed To Submit Details");
     }
   };
-  const handleDelete = async () => {
+  const handleDelete = () => {
     try {
-      await axios.delete("/personal");
-      toast.success("Details Deleted Succesfully");
-      navigate("/create-resume/personal");
+      const promise = databases.deleteDocument("648442d60bc9b3a9c1fe",'64844324db523d3d7e26', documentId);
+      promise.then(function(response:any){
+        console.log(response)
+        toast.success("Details Deleted Succesfully");
+        navigate("/create-resume");
+      },
+      function({response}:any){
+        console.log(response.message)
+      })
     } catch (e) {
       console.log("Failed to delete Personal Details");
       toast.error("Failed to Delete details");
