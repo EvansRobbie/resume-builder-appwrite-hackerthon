@@ -29,7 +29,7 @@ const Projects = () => {
       // setIsEdit(true)
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments('648442d60bc9b3a9c1fe','6486477a8cf0791ec632')
+          const response = await databases.listDocuments('648442d60bc9b3a9c1fe','64864cd49f0757319727')
           const documents = response.documents
            // console.log(documents)
            if (documents.length > 0) {
@@ -56,14 +56,14 @@ const Projects = () => {
 
       if (isEdit) {
         // Update existing data in the database
-        await databases.updateDocument('648442d60bc9b3a9c1fe','6486477a8cf0791ec632', documentId,{
+        await databases.updateDocument('648442d60bc9b3a9c1fe','64864cd49f0757319727', documentId,{
           project: projectString,
         }, )
         toast.success("Project details updated Successfully");
       } else {
         const promise = databases.createDocument(
           '648442d60bc9b3a9c1fe',
-          '6486477a8cf0791ec632',
+          '64864cd49f0757319727',
           uuidv4(),
           {
             project: projectString,
@@ -99,13 +99,13 @@ const Projects = () => {
         formik.setFieldValue('project', project);
   
         // Retrieve the document
-        const document = await databases.getDocument('648442d60bc9b3a9c1fe', '6486477a8cf0791ec632', documentId);
+        const document = await databases.getDocument('648442d60bc9b3a9c1fe', '64864cd49f0757319727', documentId);
   
         // Modify the form details array by removing the deleted experience
         const updatedproject = JSON.parse(document.project).filter((experience:{id:string}) => experience.id !== deletedProject[0].id);
   
         // Update the document with the modified form details array
-        await databases.updateDocument('648442d60bc9b3a9c1fe', '6486477a8cf0791ec632', documentId, {
+        await databases.updateDocument('648442d60bc9b3a9c1fe', '64864cd49f0757319727', documentId, {
           project: JSON.stringify(updatedproject),
         });
   
@@ -157,7 +157,11 @@ const Projects = () => {
                 <button
                   className="bg-cyan-500 flex px-4 py-1 text-sm rounded-full my-3 gap-2 items-center hover:bg-slate-950 duration-500 ease-in text-slate-200"
                   type="button"
-                  onClick={() => push({})}
+                  onClick={() => push({
+                    id:uuidv4(),
+                    title: "",
+                    description: "",
+                  })}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

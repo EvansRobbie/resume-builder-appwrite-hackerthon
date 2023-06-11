@@ -176,7 +176,13 @@ const Education = () => {
                 <button
                   className="bg-cyan-500 flex px-4 py-1 text-sm rounded-full my-3 gap-2 items-center hover:bg-slate-950 duration-500 ease-in text-slate-200"
                   type="button"
-                  onClick={() => push({})}
+                  onClick={() => push({
+                    id:uuidv4(),
+                    course: "",
+                    school: "",
+                    grade: "",
+                    year: "",
+                  })}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
