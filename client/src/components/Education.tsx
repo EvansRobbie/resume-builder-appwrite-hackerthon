@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import FormikControl from "../forms/FormikControl";
 import { Form, Formik, FieldArray } from "formik";
 import { useNavigate, useParams } from "react-router-dom";
 import RemoveButton from "./RemoveButton";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
+import { databases } from "../appWrite/AppWrite";
+import { v4 as uuidv4 } from "uuid";
 
 const Education = () => {
   const { subpages } = useParams();
@@ -13,6 +14,7 @@ const Education = () => {
   const [initialValues, setInitialValues] = useState({
     education: [
       {
+        id:uuidv4(),
         course: "",
         school: "",
         grade: "",
@@ -20,17 +22,24 @@ const Education = () => {
       },
     ],
   });
-  const [isEdit, setIsEdit] = useState(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [documentId, setDocumentId] = useState<string>('')
 
   useEffect(() => {
     if (subpages === "education") {
       const fetchData = async () => {
         try {
-          const { data } = await axios.get("/education");
-          if (data) {
-            const updatedInitialValues = { education: data.education };
-            setInitialValues(updatedInitialValues);
-            setIsEdit(true);
+          const response = await databases.listDocuments('648442d60bc9b3a9c1fe','6486477a8cf0791ec632')
+          const documents = response.documents
+           // console.log(documents)
+           if (documents.length > 0) {
+             const document = documents[0]
+             // console.log(document)
+             const updatedInitialValues = { education: JSON.parse(document.education) };
+             setInitialValues(updatedInitialValues);
+             // console.log(updatedInitialValues.experiences)
+             setDocumentId(document.$id)
+             setIsEdit(true);
           }
           // console.log(data)
         } catch (e) {
@@ -42,35 +51,76 @@ const Education = () => {
     }
   }, [subpages]);
   // console.log(initialValues)
-  const onSubmit = async (values: any, onSubmitProps: any) => {
+  const onSubmit = async (values: {education:string[] | any}, onSubmitProps:{resetForm:()=> void}) => {
     try {
+    
+      const educationString = JSON.stringify(values.education);
+
       if (isEdit) {
-        await axios.put("/education", { education: values.education });
-        toast.success(" Details Updated Successfully");
+        // Update existing data in the database
+        await databases.updateDocument('648442d60bc9b3a9c1fe','6486477a8cf0791ec632', documentId,{
+          education: educationString,
+        }, )
+        toast.success("Details updated Successfully");
       } else {
-        await axios.post("/education", { education: values.education });
-        toast.success("Details Saved Successfully");
+        const promise = databases.createDocument(
+          '648442d60bc9b3a9c1fe',
+          '6486477a8cf0791ec632',
+          uuidv4(),
+          {
+            education: educationString,
+          },
+        );
+        
+        promise.then(
+          ()=> {
+            // console.log(response);
+            toast.success("Details Saved Successfully");
+            navigate("/create-resume/experience");
+          },
+          (error:{response:{message:string}} )=> {
+            console.log(error);
+            toast.error(error.response.message);
+          },
+        );
         onSubmitProps.resetForm();
+        navigate("/create-resume");
       }
-      navigate("/create-resume/education");
+
     } catch (e) {
-      console.log(e);
+      console.log("Failed To Submit Details", e);
       toast.error("Failed To Submit Details");
     }
   };
-  const handleDelete = async (formik: any, index: any) => {
+  const handleDelete = async (formik:{values:{education:string[]} }| any , index:number) => {
     try {
-      const educationToDelete = formik.values.education[index];
-      await axios.delete(`/education/${educationToDelete._id}`);
-      // Remove the education from the formik values
-      formik.setFieldValue(`education.${index}`, undefined);
-      toast.success("Details Deleted Succesfully");
-      navigate("/create-resume/education");
+      const education = formik.values.education;
+  
+      if (index >= 0 && index < education.length) {
+        const deletedEducation = education.splice(index, 1);
+        formik.setFieldValue('education', education);
+  
+        // Retrieve the document
+        const document = await databases.getDocument('648442d60bc9b3a9c1fe', '6486477a8cf0791ec632', documentId);
+  
+        // Modify the form details array by removing the deleted experience
+        const updatedEducation = JSON.parse(document.education).filter((experience:{id:string}) => experience.id !== deletedEducation[0].id);
+  
+        // Update the document with the modified form details array
+        await databases.updateDocument('648442d60bc9b3a9c1fe', '6486477a8cf0791ec632', documentId, {
+          education: JSON.stringify(updatedEducation),
+        });
+  
+        toast.success('Education details deleted Successfully');
+      } else {
+        throw new Error('Invalid index');
+      }
     } catch (e) {
-      console.log("Failed to delete education Details");
-      toast.error("Failed to Delete details");
+      console.log('Failed to delete education  details', e);
+      toast.error('Failed to delete details');
     }
   };
+  
   return (
     <Formik
       initialValues={initialValues}
