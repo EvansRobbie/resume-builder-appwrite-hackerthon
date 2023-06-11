@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Form, Formik, FieldArray } from "formik";
-import axios from "axios";
 import FormikControl from "../forms/FormikControl";
 import { useNavigate, useParams } from "react-router-dom";
 import RemoveButton from "./RemoveButton";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
+import { databases } from "../appWrite/AppWrite";
+import { v4 as uuidv4 } from "uuid";
 
 const Reference = () => {
   const { subpages } = useParams();
@@ -13,6 +14,7 @@ const Reference = () => {
   const [initialValues, setInitialValues] = useState({
     referees: [
       {
+        id:uuidv4(),
         name: "",
         title: "",
         companyName: "",
@@ -21,19 +23,26 @@ const Reference = () => {
       },
     ],
   });
-  const [isEdit, setIsEdit] = useState(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [documentId, setDocumentId] = useState<string>('')
+  
   useEffect(() => {
     if (subpages === "reference") {
       // setIsEdit(true)
       const fetchData = async () => {
         try {
-          const { data } = await axios.get("/referee");
-          if (data) {
-            const updatedInitialValues = { referees: data.referees };
-            setInitialValues(updatedInitialValues);
-            setIsEdit(true);
+          const response = await databases.listDocuments('648442d60bc9b3a9c1fe','648651f42bddee552e29')
+          const documents = response.documents
+           // console.log(documents)
+           if (documents.length > 0) {
+             const document = documents[0]
+             // console.log(document)
+             const updatedInitialValues = { referees: JSON.parse(document.referees) };
+             setInitialValues(updatedInitialValues);
+             // console.log(updatedInitialValues.experiences)
+             setDocumentId(document.$id)
+             setIsEdit(true);
           }
-          // console.log(data)
         } catch (e) {
           console.log("Failed to fetch Referee details", e);
           toast.error("Failed to fetch Referee details");
@@ -42,35 +51,73 @@ const Reference = () => {
       fetchData();
     }
   }, [subpages]);
-  const onSubmit = async (values: any, onSubmitProps: any) => {
-    // console.log(values)
+  const onSubmit = async (values: {referees:string[] | any}, onSubmitProps:{resetForm:()=> void}) => {
     try {
+    
+      const refereesString = JSON.stringify(values.referees);
+
       if (isEdit) {
-        await axios.put("/reference", { referees: values.referees });
-        toast.success(" Details Updated Successfully");
+        // Update existing data in the database
+        await databases.updateDocument('648442d60bc9b3a9c1fe','648651f42bddee552e29', documentId,{
+          referees: refereesString,
+        }, )
+        toast.success("Details updated Successfully");
       } else {
-        await axios.post("/reference", { referees: values.referees });
-        toast.success("Details Saved Successfully");
+        const promise = databases.createDocument(
+          '648442d60bc9b3a9c1fe',
+          '648651f42bddee552e29',
+          uuidv4(),
+          {
+            referees: refereesString,
+          },
+        );
+        
+        promise.then(
+          ()=> {
+            // console.log(response);
+            toast.success("Details Saved Successfully");
+            navigate("/create-resume/experience");
+          },
+          (error:{response:{message:string}} )=> {
+            console.log(error);
+            toast.error(error.response.message);
+          },
+        );
         onSubmitProps.resetForm();
+        navigate("/create-resume");
       }
-      navigate("/create-resume");
+
     } catch (e) {
       console.log("Failed To Submit Details", e);
       toast.error("Failed To Submit Details");
     }
   };
-
-  const handleDelete = async (formik: any, index: any) => {
+  const handleDelete = async (formik:{values:{referees:string[]} }| any , index:number) => {
     try {
-      const refereesToDelete = formik.values.referees[index];
-      await axios.delete(`/reference/${refereesToDelete._id}`);
-      // Remove the referees from the formik values
-      formik.setFieldValue(`referees.${index}`, undefined);
-      toast.success("Details Deleted Succesfully");
-      navigate("/create-resume/reference");
+      const referees = formik.values.referees;
+  
+      if (index >= 0 && index < referees.length) {
+        const deletedReferees = referees.splice(index, 1);
+        formik.setFieldValue('referees', referees);
+  
+        // Retrieve the document
+        const document = await databases.getDocument('648442d60bc9b3a9c1fe', '648651f42bddee552e29', documentId);
+  
+        // Modify the form details array by removing the deleted experience
+        const updatedReferees = JSON.parse(document.referees).filter((experience:{id:string}) => experience.id !== deletedReferees[0].id);
+  
+        // Update the document with the modified form details array
+        await databases.updateDocument('648442d60bc9b3a9c1fe', '648651f42bddee552e29', documentId, {
+          referees: JSON.stringify(updatedReferees),
+        });
+  
+        toast.success('Referees details deleted Successfully');
+      } else {
+        throw new Error('Invalid index');
+      }
     } catch (e) {
-      console.log("Failed to delete referees Details");
-      toast.error("Failed to Delete details");
+      console.log('Failed to delete referees  details', e);
+      toast.error('Failed to delete details');
     }
   };
   return (
@@ -133,7 +180,14 @@ const Reference = () => {
                 <button
                   className="bg-cyan-500 flex px-4 py-1 text-sm rounded-full my-3 gap-2 items-center hover:bg-slate-950 duration-500 ease-in text-slate-200"
                   type="button"
-                  onClick={() => push({})}
+                  onClick={() => push({
+                    id:uuidv4(),
+                    name: "",
+                    title: "",
+                    companyName: "",
+                    email: "",
+                    phone: "",
+                  })}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
