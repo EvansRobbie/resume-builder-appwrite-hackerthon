@@ -52,7 +52,7 @@ const Home = () => {
       <nav
         className={` ${
           isOpen ? "w-auto" : "w-20 items-center"
-        } flex flex-col   py-4 bg-slate-950 min-h-screen max-h-[200vh]`}
+        } flex flex-col   py-4 bg-slate-950 min-h-screen max-h-full`}
       >
         {/* sidebar */}
         <Tippy content={<span>Personal Details</span>}>
