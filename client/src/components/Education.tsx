@@ -41,7 +41,7 @@ const Education = () => {
              setDocumentId(document.$id)
              setIsEdit(true);
           }
-          // console.log(data)
+          
         } catch (e) {
           console.log("Failed to fetch Education details", e);
           toast.error("Failed to fetch Education details");

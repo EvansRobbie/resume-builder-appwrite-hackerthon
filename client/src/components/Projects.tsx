@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Formik, Form, FieldArray } from "formik";
-import axios from "axios";
 import FormikControl from "../forms/FormikControl";
 import { useNavigate, useParams } from "react-router-dom";
 import RemoveButton from "./RemoveButton";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
+import { databases } from "../appWrite/AppWrite";
+import { v4 as uuidv4 } from "uuid";
 
 const Projects = () => {
   const { subpages } = useParams();
@@ -13,25 +14,34 @@ const Projects = () => {
   const [initialValues, setInitialValues] = useState({
     project: [
       {
+        id:uuidv4(),
         title: "",
         description: "",
       },
     ],
   });
-  const [isEdit, setIsEdit] = useState(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [documentId, setDocumentId] = useState<string>('')
+
 
   useEffect(() => {
     if (subpages === "projects") {
       // setIsEdit(true)
       const fetchData = async () => {
         try {
-          const { data } = await axios.get("/projects");
-          if (data) {
-            const updatedInitialValues = { project: data.project };
-            setInitialValues(updatedInitialValues);
-            setIsEdit(true);
+          const response = await databases.listDocuments('648442d60bc9b3a9c1fe','6486477a8cf0791ec632')
+          const documents = response.documents
+           // console.log(documents)
+           if (documents.length > 0) {
+             const document = documents[0]
+             // console.log(document)
+             const updatedInitialValues = { project: JSON.parse(document.project) };
+             setInitialValues(updatedInitialValues);
+             // console.log(updatedInitialValues.experiences)
+             setDocumentId(document.$id)
+             setIsEdit(true);
           }
-          // console.log(data)
+        
         } catch (e) {
           console.log("Failed to fetch Projects details", e);
           toast.error("Failed to fetch projects details");
@@ -40,15 +50,39 @@ const Projects = () => {
       fetchData();
     }
   }, [subpages]);
-  const onSubmit = async (values: any, onSubmitProps: any) => {
+  const onSubmit = async (values: {project:string[] | any}, onSubmitProps:{resetForm:()=> void}) => {
     try {
+      const projectString = JSON.stringify(values.project);
+
       if (isEdit) {
-        await axios.put("/projects", { project: values.project });
-        toast.success(" Details Updated Successfully");
+        // Update existing data in the database
+        await databases.updateDocument('648442d60bc9b3a9c1fe','6486477a8cf0791ec632', documentId,{
+          project: projectString,
+        }, )
+        toast.success("Project details updated Successfully");
       } else {
-        await axios.post("/projects", { project: values.project });
-        toast.success("Details Saved Successfully");
+        const promise = databases.createDocument(
+          '648442d60bc9b3a9c1fe',
+          '6486477a8cf0791ec632',
+          uuidv4(),
+          {
+            project: projectString,
+          },
+        );
+        
+        promise.then(
+          ()=> {
+            // console.log(response);
+            toast.success("Details Saved Successfully");
+            navigate("/create-resume/experience");
+          },
+          (error:{response:{message:string}} )=> {
+            console.log(error);
+            toast.error(error.response.message);
+          },
+        );
         onSubmitProps.resetForm();
+        navigate("/create-resume");
       }
     } catch (e) {
       console.log("Failed To Submit Details", e);
@@ -56,17 +90,32 @@ const Projects = () => {
     }
     navigate("/create-resume");
   };
-  const handleDelete = async (formik: any, index: any) => {
+  const handleDelete = async (formik:{values:{project:string[]} }| any , index:number) => {
     try {
-      const projectToDelete = formik.values.project[index];
-      await axios.delete(`/project/${projectToDelete._id}`);
-      // Remove the project from the formik values
-      formik.setFieldValue(`project.${index}`, undefined);
-      toast.success("Details Deleted Succesfully");
-      navigate("/create-resume/projects");
+      const project = formik.values.project;
+  
+      if (index >= 0 && index < project.length) {
+        const deletedProject = project.splice(index, 1);
+        formik.setFieldValue('project', project);
+  
+        // Retrieve the document
+        const document = await databases.getDocument('648442d60bc9b3a9c1fe', '6486477a8cf0791ec632', documentId);
+  
+        // Modify the form details array by removing the deleted experience
+        const updatedproject = JSON.parse(document.project).filter((experience:{id:string}) => experience.id !== deletedProject[0].id);
+  
+        // Update the document with the modified form details array
+        await databases.updateDocument('648442d60bc9b3a9c1fe', '6486477a8cf0791ec632', documentId, {
+          project: JSON.stringify(updatedproject),
+        });
+  
+        toast.success('project details deleted Successfully');
+      } else {
+        throw new Error('Invalid index');
+      }
     } catch (e) {
-      console.log("Failed to delete project Details");
-      toast.error("Failed to Delete details");
+      console.log('Failed to delete project  details', e);
+      toast.error('Failed to delete details');
     }
   };
   return (
