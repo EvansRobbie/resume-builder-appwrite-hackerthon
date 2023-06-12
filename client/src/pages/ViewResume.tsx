@@ -1,7 +1,4 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import html2pdf from "html2pdf.js";
-import Loading from "../components/Loading";
 import { useResumeContext } from "../context/ResumeContext";
 import ListPersonalDetails from "../components/ListPersonalDetails";
 import ListObjectiveDetails from "../components/ListObjectiveDetails";
@@ -12,46 +9,9 @@ import ListProjectDetails from "../components/ListProjectDetails";
 import ListCertificateDetails from "../components/ListCertificateDetails";
 import ListRefereeDetails from "../components/ListRefereeDetails";
 
-interface resumeProps {
- 
-  certification: {
-    certificate: string;
-  }[];
-  reference: {
-    referees: {
-      name: string;
-      title: string;
-      companyName: string;
-      email?: string;
-      phone: string;
-    }[];
-  }[];
-}
-const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
-  const [resumeData, setResumeData] = useState<resumeProps | null>(null);
-  const { user } = useResumeContext();
-  const [isLoading, setIsLoading] = useState(false);
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setIsLoading(true);
-  //     const { data } = await axios.get("/resume");
-  //     if (data) {
-  //       setResumeData(data);
-  //       setIsLoading(false);
-  //     }
-  //   };
 
-  //   fetchData();
-  // }, []);
-  if (isLoading) {
-    return (
-      <div className="flex items-center h-screen justify-center w-full">
-        <Loading />
-      </div>
-    );
-  }
-  // console.log(resumeData)
-  // console.log(personal)
+const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
+  const { user } = useResumeContext();
   const handleDownload = () => {
     const element = document.getElementById("resume");
     // generate pdf from the resume
@@ -94,24 +54,6 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
 
        <ListRefereeDetails/>
        
-        {resumeData?.reference && resumeData?.reference.length > 0 && (
-          <div>
-            <div className="heading-bg">
-              <h1 className="h1">Reference</h1>
-            </div>
-            {resumeData?.reference[0].referees?.map((referee, index) => (
-              <div
-                key={index}
-                className="px-4 py-3 text-xs flex flex-col gap-1"
-              >
-                <h2 className=" font-semibold">{referee.name}</h2>
-                <span className="">{referee.companyName}</span>
-                <div className="">{referee.email} </div>
-                <p className="">{referee.phone}</p>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
       <button
         onClick={handleDownload}
