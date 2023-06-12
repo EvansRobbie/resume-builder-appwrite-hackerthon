@@ -1,12 +1,48 @@
-const {Client, Users} = require('node-appwrite')
+const express = require("express");
+const cors = require("cors");
+const app = express();
+const { Configuration, OpenAIApi } = require("openai");
+require("dotenv").config();
+const port = 4000;
 
-// initialize SDK
+const config = new Configuration({
+    organization: "org-t2jndfDjhw0g6mCXrCSiRfev",
+    apiKey: process.env.OPEN_AI_API_KEY,
+  });
+  const openai = new OpenAIApi(config);
+  
+  // console.log(process.env.MONGO_URL)
+  
+  app.use(express.json());
+  app.use(
+    cors({
+      credentials: true,
+      origin: "http://localhost:5173",
+    })
+  );
 
-const client = new Client();
+  app.get("/api/test", (req, res) => {
 
-const users = new Users(client)
+    res.json("Test Ok");
+  });
 
-client
-    .setEndpoint('https://cloud.appwrite.io/v1')
-    .setProject('64832acf27f65e88cb6f')
-    .setKey('3b7a7c1454d66106f305152993bae7fa425a54e9ec45bf29add2358fdb5523f1fe9520a057a397c1a06081bb96fef90b8dc26430ec0c9f89847713121c1f9fa92e8f4316161e45bf9d5f94ac468fbdf06d7cb659834501590705a760fc6a97d59a3d267db97c634ecb51e55d4016275abca80a145e35ac5bd4b32ab1738b812f')
+  // Post details for AI prompt to generate a resume Sample
+app.post("/api/generate-resume", async (req, res) => {
+    try {
+      const { prompt } = req.body;
+  
+      const generatedResume = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt,
+        max_tokens: 3000,
+      });
+  
+      const resumeText = generatedResume.data.choices[0].text.trim();
+  
+      res.json({ resume: resumeText });
+    } catch (error) {
+      console.error("Failed to generate resume:", error);
+      res.status(500).json({ error: "Failed to generate resume" });
+    }
+  });
+  app.listen(port);
