@@ -37,7 +37,7 @@ const ListEducationDetails = () => {
           fetchData();
         
       }, []);
-      console.log(educationDetails)
+    //   console.log(educationDetails)
   return (
     <>
         {educationDetails?.education && educationDetails.education.length > 0 && (

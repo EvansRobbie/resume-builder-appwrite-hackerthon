@@ -7,18 +7,10 @@ import ListPersonalDetails from "../components/ListPersonalDetails";
 import ListObjectiveDetails from "../components/ListObjectiveDetails";
 import ListExperienceDetails from "../components/ListExperienceDetails";
 import ListEducationDetails from "../components/ListEducationDetails";
+import ListSkillsDetails from "../components/ListSkillsDetails";
 
 interface resumeProps {
  
- 
-  education: {
-    education: {
-      course: string;
-      school: string;
-      grade: string;
-      year: string;
-    }[];
-  }[];
   skills: {
     content: string;
   }[];
@@ -99,21 +91,8 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
         <ListExperienceDetails/>
         
         <ListEducationDetails/>
-        {resumeData?.education && resumeData?.education?.length > 0 && (
-          <div>
-            <div className="heading-bg">
-              <h1 className="h1">Education</h1>
-            </div>
-            {resumeData.education[0].education?.map((edu, index) => (
-              <div key={index} className="px-4 py-3 text-xs">
-                <h2 className=" font-semibold">{edu.school}</h2>
-                <span className="italic text-xs">{edu.year}</span>
-                <div className="">{edu.course} </div>
-                <p className="">{edu.grade}</p>
-              </div>
-            ))}
-          </div>
-        )}
+      
+        <ListSkillsDetails/>
         {resumeData?.skills && resumeData?.skills.length > 0 && (
           <div>
             <div className="heading-bg">
