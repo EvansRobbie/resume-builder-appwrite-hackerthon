@@ -33,7 +33,7 @@ const ListProjectDetails = () => {
           fetchData();
         
       }, []);
-      console.log(projectDetails)
+    //   console.log(projectDetails)
     return (
     <>
         {projectDetails?.project && projectDetails.project.length > 0 && (

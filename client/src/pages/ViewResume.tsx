@@ -9,15 +9,10 @@ import ListExperienceDetails from "../components/ListExperienceDetails";
 import ListEducationDetails from "../components/ListEducationDetails";
 import ListSkillsDetails from "../components/ListSkillsDetails";
 import ListProjectDetails from "../components/ListProjectDetails";
+import ListCertificateDetails from "../components/ListCertificateDetails";
 
 interface resumeProps {
  
-  projects: {
-    project: {
-      title: string;
-      description: string;
-    }[];
-  }[];
   certification: {
     certificate: string;
   }[];
@@ -94,21 +89,7 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
 
         <ListProjectDetails/>
         
-        {resumeData?.projects && resumeData?.projects.length > 0 && (
-          <div>
-            <div className="heading-bg ">
-              <h1 className="h1">Projects</h1>
-            </div>
-            {resumeData.projects[0].project.map((proje, index) => (
-              <div key={index} className="px-4 py-3 text-xs">
-                <h2 className=" font-semibold">{proje.title}</h2>
-                <p className="" style={{ whiteSpace: "pre-line" }}>
-                  {proje.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+       <ListCertificateDetails/>
         {resumeData?.certification && resumeData?.certification.length > 0 && (
           <div>
             <div className="heading-bg">
