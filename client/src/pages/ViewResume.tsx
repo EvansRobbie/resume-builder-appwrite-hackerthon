@@ -5,6 +5,7 @@ import Loading from "../components/Loading";
 import { useResumeContext } from "../context/ResumeContext";
 import ListPersonalDetails from "../components/ListPersonalDetails";
 import ListObjectiveDetails from "../components/ListObjectiveDetails";
+import ListExperienceDetails from "../components/ListExperienceDetails";
 
 interface resumeProps {
  
@@ -101,6 +102,8 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
        <ListPersonalDetails/>
 
         <ListObjectiveDetails/>
+
+        <ListExperienceDetails/>
         {resumeData?.experience && resumeData?.experience.length > 0 && (
           <div>
             <div className="heading-bg">
