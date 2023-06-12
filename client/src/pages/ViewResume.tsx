@@ -8,12 +8,10 @@ import ListObjectiveDetails from "../components/ListObjectiveDetails";
 import ListExperienceDetails from "../components/ListExperienceDetails";
 import ListEducationDetails from "../components/ListEducationDetails";
 import ListSkillsDetails from "../components/ListSkillsDetails";
+import ListProjectDetails from "../components/ListProjectDetails";
 
 interface resumeProps {
  
-  skills: {
-    content: string;
-  }[];
   projects: {
     project: {
       title: string;
@@ -64,7 +62,7 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
     html2pdf().from(element).save(`${user?.name}.pdf`);
   };
   return (
-    <div className="w-full min-h-screen  max-h-full absolute top-0 left-0 opacity-100 z-20 py-4 px-20 bg-slate-200">
+    <div className="w-full min-h-screen  max-h-[400vh] absolute top-0 left-0 opacity-100 z-20 py-4 px-20 bg-slate-200">
       <div
         onClick={handleModal}
         className="fixed top-10 left-10 opacity-100 z-30 cursor-pointer bg-slate-100 p-2 rounded-full"
@@ -83,7 +81,7 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
         </svg>
       </div>
 
-      <div className="relative max-w-3xl mx-auto " id="resume">
+      <div className="relative  max-w-3xl mx-auto " id="resume">
        <ListPersonalDetails/>
 
         <ListObjectiveDetails/>
@@ -93,21 +91,9 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
         <ListEducationDetails/>
       
         <ListSkillsDetails/>
-        {resumeData?.skills && resumeData?.skills.length > 0 && (
-          <div>
-            <div className="heading-bg">
-              <h1 className="h1">Skills</h1>
-            </div>
-            <div
-              className="py-3 text-sm px-4"
-              dangerouslySetInnerHTML={{
-                __html: resumeData?.skills[0].content || "",
-              }}
-            />
-            {/* {resumeData?.skills[0].content} */}
-            {/* </div> */}
-          </div>
-        )}
+
+        <ListProjectDetails/>
+        
         {resumeData?.projects && resumeData?.projects.length > 0 && (
           <div>
             <div className="heading-bg ">
