@@ -26,7 +26,7 @@ const ListCertificateDetails = () => {
           };
           fetchData();
       }, []);
-      console.log(certificateDetails)
+    //   console.log(certificateDetails)
     return (
     <>
         {certificateDetails?.certificate && certificateDetails.certificate.length > 0 && (

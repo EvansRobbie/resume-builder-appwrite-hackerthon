@@ -10,6 +10,7 @@ import ListEducationDetails from "../components/ListEducationDetails";
 import ListSkillsDetails from "../components/ListSkillsDetails";
 import ListProjectDetails from "../components/ListProjectDetails";
 import ListCertificateDetails from "../components/ListCertificateDetails";
+import ListRefereeDetails from "../components/ListRefereeDetails";
 
 interface resumeProps {
  
@@ -90,19 +91,9 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
         <ListProjectDetails/>
         
        <ListCertificateDetails/>
-        {resumeData?.certification && resumeData?.certification.length > 0 && (
-          <div>
-            <div className="heading-bg">
-              <h1 className="h1">certifications & Achievements</h1>
-            </div>
-            <div
-              className="py-3 text-sm px-4"
-              style={{ whiteSpace: "pre-line" }}
-            >
-              {resumeData?.certification[0].certificate}
-            </div>
-          </div>
-        )}
+
+       <ListRefereeDetails/>
+       
         {resumeData?.reference && resumeData?.reference.length > 0 && (
           <div>
             <div className="heading-bg">
