@@ -35,9 +35,9 @@ const Register = ({
           setToggle(true);
           toast.success("Registration Successful. Please Login!");
       },
-      function(err:any){
-          console.log(err)
-          toast.error("Registration Failed");
+      function({response}:any){
+          console.log(response)
+          toast.error(response.message);
       }
     );
   } catch (e) {

@@ -34,13 +34,19 @@ const Login = ({
   const onSubmit = async (values: any) => {
     // e.preventDefault()
     try {
-      const response = await account.createEmailSession(values.email, values.password)
+      const promise = account.createEmailSession(values.email, values.password)
+        promise.then((response:any)=>{
+          setUser(response);
+          // console.log(response)
+          navigate("/");
+          setLoginModal(false);
+          toast.success(`Logged in as ${response.providerUid}`);
 
-      console.log()
-      setUser(response);
-      navigate("/");
-      setLoginModal(false);
-      toast.success(`Logged in as ${response.providerUid}`);
+        }, ({response}:any)=>{
+          console.log(response.message)
+          toast.error(response.message);
+        })
+
     } catch (e:any) {
       console.log("Login Failed", e);
       toast.error(e);
