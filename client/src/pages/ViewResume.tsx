@@ -6,18 +6,11 @@ import { useResumeContext } from "../context/ResumeContext";
 import ListPersonalDetails from "../components/ListPersonalDetails";
 import ListObjectiveDetails from "../components/ListObjectiveDetails";
 import ListExperienceDetails from "../components/ListExperienceDetails";
+import ListEducationDetails from "../components/ListEducationDetails";
 
 interface resumeProps {
  
-  experience: {
-    experiences: {
-      companyName: string;
-      jobTitle: string;
-      start: string;
-      end: string;
-      details: string;
-    }[];
-  }[];
+ 
   education: {
     education: {
       course: string;
@@ -104,25 +97,8 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
         <ListObjectiveDetails/>
 
         <ListExperienceDetails/>
-        {resumeData?.experience && resumeData?.experience.length > 0 && (
-          <div>
-            <div className="heading-bg">
-              <h1 className="h1">Experience</h1>
-            </div>
-            {resumeData?.experience[0]?.experiences.map((experience, index) => (
-              <div key={index} className="px-4 py-3 text-sm">
-                <h2 className=" font-semibold">{experience.companyName}</h2>
-                <span className="italic">
-                  {experience.start}- {experience.end}
-                </span>
-                <div className="">{experience.jobTitle} </div>
-                <p className="" style={{ whiteSpace: "pre-line" }}>
-                  {experience.details}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+        
+        <ListEducationDetails/>
         {resumeData?.education && resumeData?.education?.length > 0 && (
           <div>
             <div className="heading-bg">
