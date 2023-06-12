@@ -23,7 +23,7 @@ const ResumeContextProvider = ({ children }: { children: React.ReactNode }) => {
     };
     fetchUser();
   }, []);
-  console.log(user?.name)
+  // console.log(user?.name)
   const handleLogout = async () => {
     try{
       await account.deleteSession("current");

@@ -22,11 +22,11 @@ const Login = ({
   const navigate = useNavigate();
 
   const initialValues = {
-    username: "",
+    email: "",
     password: "",
   };
   const validationSchema = Yup.object({
-    username: Yup.string().required("Username Required"),
+    email: Yup.string().email().required("Email Required"),
     password: Yup.string().required("Password Required"),
   });
 
@@ -59,9 +59,10 @@ const Login = ({
       <Form>
         <FormikControl
           control="input"
-          name="username"
-          label="Username"
-          placeholder="Jane Doe"
+          name="email"
+          label="Email"
+          placeholder="johndoe@gmail.com"
+          type="email"
         />
         <FormikControl
           control="input"

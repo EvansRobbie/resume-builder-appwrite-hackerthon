@@ -22,14 +22,6 @@ const Register = ({
     password: Yup.string().required("Password Required"),
   });
   const onSubmit = async (values: any) => {
-    //   e.preventDefault()
-   // Validate the email address before you try to create a user.
-  // const errors = validationSchema.validate(values);
-  // // if (errors.hasErrors()) {
-  // //   return;
-  // // }
-
-  // Handle the error case where the user does not provide a valid email address.
   try {
     const promise = await account.create(
       uuidv4(),
@@ -38,10 +30,10 @@ const Register = ({
       values.username
     );
     promise.then(
-      function(response:any){
-          console.log(response)
+      function(){
+          // console.log(response)
           setToggle(true);
-          toast.success("Registration Successfull");
+          toast.success("Registration Successful. Please Login!");
       },
       function(err:string){
           console.log(err)
