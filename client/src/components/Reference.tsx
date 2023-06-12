@@ -7,6 +7,7 @@ import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { v4 as uuidv4 } from "uuid";
+import { databaseId, refereeCollectionId } from "./envExports";
 
 const Reference = () => {
   const { subpages } = useParams();
@@ -14,7 +15,7 @@ const Reference = () => {
   const [initialValues, setInitialValues] = useState({
     referees: [
       {
-        id:uuidv4(),
+        id: uuidv4(),
         name: "",
         title: "",
         companyName: "",
@@ -24,24 +25,29 @@ const Reference = () => {
     ],
   });
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [documentId, setDocumentId] = useState<string>('')
-  
+  const [documentId, setDocumentId] = useState<string>("");
+
   useEffect(() => {
     if (subpages === "reference") {
       // setIsEdit(true)
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments('648442d60bc9b3a9c1fe','648651f42bddee552e29')
-          const documents = response.documents
-           // console.log(documents)
-           if (documents.length > 0) {
-             const document = documents[0]
-             // console.log(document)
-             const updatedInitialValues = { referees: JSON.parse(document.referees) };
-             setInitialValues(updatedInitialValues);
-             // console.log(updatedInitialValues.experiences)
-             setDocumentId(document.$id)
-             setIsEdit(true);
+          const response = await databases.listDocuments(
+            databaseId,
+            refereeCollectionId
+          );
+          const documents = response.documents;
+          // console.log(documents)
+          if (documents.length > 0) {
+            const document = documents[0];
+            // console.log(document)
+            const updatedInitialValues = {
+              referees: JSON.parse(document.referees),
+            };
+            setInitialValues(updatedInitialValues);
+            // console.log(updatedInitialValues.experiences)
+            setDocumentId(document.$id);
+            setIsEdit(true);
           }
         } catch (e) {
           console.log("Failed to fetch Referee details", e);
@@ -51,73 +57,94 @@ const Reference = () => {
       fetchData();
     }
   }, [subpages]);
-  const onSubmit = async (values: {referees:string[] | any}, onSubmitProps:{resetForm:()=> void}) => {
+  const onSubmit = async (
+    values: { referees: string[] | any },
+    onSubmitProps: { resetForm: () => void }
+  ) => {
     try {
-    
       const refereesString = JSON.stringify(values.referees);
 
       if (isEdit) {
         // Update existing data in the database
-        await databases.updateDocument('648442d60bc9b3a9c1fe','648651f42bddee552e29', documentId,{
-          referees: refereesString,
-        }, )
+        await databases.updateDocument(
+          databaseId,
+          refereeCollectionId,
+          documentId,
+          {
+            referees: refereesString,
+          }
+        );
         toast.success("Details updated Successfully");
       } else {
         const promise = databases.createDocument(
-          '648442d60bc9b3a9c1fe',
-          '648651f42bddee552e29',
+          databaseId,
+          refereeCollectionId,
           uuidv4(),
           {
             referees: refereesString,
-          },
+          }
         );
-        
+
         promise.then(
-          ()=> {
+          () => {
             // console.log(response);
             toast.success("Details Saved Successfully");
             navigate("/create-resume/experience");
           },
-          (error:{response:{message:string}} )=> {
+          (error: { response: { message: string } }) => {
             console.log(error);
             toast.error(error.response.message);
-          },
+          }
         );
         onSubmitProps.resetForm();
         navigate("/create-resume");
       }
-
     } catch (e) {
       console.log("Failed To Submit Details", e);
       toast.error("Failed To Submit Details");
     }
   };
-  const handleDelete = async (formik:{values:{referees:string[]} }| any , index:number) => {
+  const handleDelete = async (
+    formik: { values: { referees: string[] } } | any,
+    index: number
+  ) => {
     try {
       const referees = formik.values.referees;
-  
+
       if (index >= 0 && index < referees.length) {
         const deletedReferees = referees.splice(index, 1);
-        formik.setFieldValue('referees', referees);
-  
+        formik.setFieldValue("referees", referees);
+
         // Retrieve the document
-        const document = await databases.getDocument('648442d60bc9b3a9c1fe', '648651f42bddee552e29', documentId);
-  
+        const document = await databases.getDocument(
+          databaseId,
+          refereeCollectionId,
+          documentId
+        );
+
         // Modify the form details array by removing the deleted experience
-        const updatedReferees = JSON.parse(document.referees).filter((experience:{id:string}) => experience.id !== deletedReferees[0].id);
-  
+        const updatedReferees = JSON.parse(document.referees).filter(
+          (experience: { id: string }) =>
+            experience.id !== deletedReferees[0].id
+        );
+
         // Update the document with the modified form details array
-        await databases.updateDocument('648442d60bc9b3a9c1fe', '648651f42bddee552e29', documentId, {
-          referees: JSON.stringify(updatedReferees),
-        });
-  
-        toast.success('Referees details deleted Successfully');
+        await databases.updateDocument(
+          databaseId,
+          refereeCollectionId,
+          documentId,
+          {
+            referees: JSON.stringify(updatedReferees),
+          }
+        );
+
+        toast.success("Referees details deleted Successfully");
       } else {
-        throw new Error('Invalid index');
+        throw new Error("Invalid index");
       }
     } catch (e) {
-      console.log('Failed to delete referees  details', e);
-      toast.error('Failed to delete details');
+      console.log("Failed to delete referees  details", e);
+      toast.error("Failed to delete details");
     }
   };
   return (
@@ -180,14 +207,16 @@ const Reference = () => {
                 <button
                   className="bg-cyan-500 flex px-4 py-1 text-sm rounded-full my-3 gap-2 items-center hover:bg-slate-950 duration-500 ease-in text-slate-200"
                   type="button"
-                  onClick={() => push({
-                    id:uuidv4(),
-                    name: "",
-                    title: "",
-                    companyName: "",
-                    email: "",
-                    phone: "",
-                  })}
+                  onClick={() =>
+                    push({
+                      id: uuidv4(),
+                      name: "",
+                      title: "",
+                      companyName: "",
+                      email: "",
+                      phone: "",
+                    })
+                  }
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

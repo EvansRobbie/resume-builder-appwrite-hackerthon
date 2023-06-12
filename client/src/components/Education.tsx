@@ -7,6 +7,7 @@ import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { v4 as uuidv4 } from "uuid";
+import { databaseId, educationCollectionId } from "./envExports";
 
 const Education = () => {
   const { subpages } = useParams();
@@ -14,7 +15,7 @@ const Education = () => {
   const [initialValues, setInitialValues] = useState({
     education: [
       {
-        id:uuidv4(),
+        id: uuidv4(),
         course: "",
         school: "",
         grade: "",
@@ -23,25 +24,29 @@ const Education = () => {
     ],
   });
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [documentId, setDocumentId] = useState<string>('')
+  const [documentId, setDocumentId] = useState<string>("");
 
   useEffect(() => {
     if (subpages === "education") {
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments('648442d60bc9b3a9c1fe','6486477a8cf0791ec632')
-          const documents = response.documents
-           // console.log(documents)
-           if (documents.length > 0) {
-             const document = documents[0]
-             // console.log(document)
-             const updatedInitialValues = { education: JSON.parse(document.education) };
-             setInitialValues(updatedInitialValues);
-             // console.log(updatedInitialValues.experiences)
-             setDocumentId(document.$id)
-             setIsEdit(true);
+          const response = await databases.listDocuments(
+            databaseId,
+            educationCollectionId
+          );
+          const documents = response.documents;
+          // console.log(documents)
+          if (documents.length > 0) {
+            const document = documents[0];
+            // console.log(document)
+            const updatedInitialValues = {
+              education: JSON.parse(document.education),
+            };
+            setInitialValues(updatedInitialValues);
+            // console.log(updatedInitialValues.experiences)
+            setDocumentId(document.$id);
+            setIsEdit(true);
           }
-          
         } catch (e) {
           console.log("Failed to fetch Education details", e);
           toast.error("Failed to fetch Education details");
@@ -51,76 +56,97 @@ const Education = () => {
     }
   }, [subpages]);
   // console.log(initialValues)
-  const onSubmit = async (values: {education:string[] | any}, onSubmitProps:{resetForm:()=> void}) => {
+  const onSubmit = async (
+    values: { education: string[] | any },
+    onSubmitProps: { resetForm: () => void }
+  ) => {
     try {
-    
       const educationString = JSON.stringify(values.education);
 
       if (isEdit) {
         // Update existing data in the database
-        await databases.updateDocument('648442d60bc9b3a9c1fe','6486477a8cf0791ec632', documentId,{
-          education: educationString,
-        }, )
+        await databases.updateDocument(
+          databaseId,
+          educationCollectionId,
+          documentId,
+          {
+            education: educationString,
+          }
+        );
         toast.success("Details updated Successfully");
       } else {
         const promise = databases.createDocument(
-          '648442d60bc9b3a9c1fe',
-          '6486477a8cf0791ec632',
+          databaseId,
+          educationCollectionId,
           uuidv4(),
           {
             education: educationString,
-          },
+          }
         );
-        
+
         promise.then(
-          ()=> {
+          () => {
             // console.log(response);
             toast.success("Details Saved Successfully");
             navigate("/create-resume/experience");
           },
-          (error:{response:{message:string}} )=> {
+          (error: { response: { message: string } }) => {
             console.log(error);
             toast.error(error.response.message);
-          },
+          }
         );
         onSubmitProps.resetForm();
         navigate("/create-resume");
       }
-
     } catch (e) {
       console.log("Failed To Submit Details", e);
       toast.error("Failed To Submit Details");
     }
   };
-  const handleDelete = async (formik:{values:{education:string[]} }| any , index:number) => {
+  const handleDelete = async (
+    formik: { values: { education: string[] } } | any,
+    index: number
+  ) => {
     try {
       const education = formik.values.education;
-  
+
       if (index >= 0 && index < education.length) {
         const deletedEducation = education.splice(index, 1);
-        formik.setFieldValue('education', education);
-  
+        formik.setFieldValue("education", education);
+
         // Retrieve the document
-        const document = await databases.getDocument('648442d60bc9b3a9c1fe', '6486477a8cf0791ec632', documentId);
-  
+        const document = await databases.getDocument(
+          databaseId,
+          educationCollectionId,
+          documentId
+        );
+
         // Modify the form details array by removing the deleted experience
-        const updatedEducation = JSON.parse(document.education).filter((experience:{id:string}) => experience.id !== deletedEducation[0].id);
-  
+        const updatedEducation = JSON.parse(document.education).filter(
+          (experience: { id: string }) =>
+            experience.id !== deletedEducation[0].id
+        );
+
         // Update the document with the modified form details array
-        await databases.updateDocument('648442d60bc9b3a9c1fe', '6486477a8cf0791ec632', documentId, {
-          education: JSON.stringify(updatedEducation),
-        });
-  
-        toast.success('Education details deleted Successfully');
+        await databases.updateDocument(
+          databaseId,
+          educationCollectionId,
+          documentId,
+          {
+            education: JSON.stringify(updatedEducation),
+          }
+        );
+
+        toast.success("Education details deleted Successfully");
       } else {
-        throw new Error('Invalid index');
+        throw new Error("Invalid index");
       }
     } catch (e) {
-      console.log('Failed to delete education  details', e);
-      toast.error('Failed to delete details');
+      console.log("Failed to delete education  details", e);
+      toast.error("Failed to delete details");
     }
   };
-  
+
   return (
     <Formik
       initialValues={initialValues}
@@ -176,13 +202,15 @@ const Education = () => {
                 <button
                   className="bg-cyan-500 flex px-4 py-1 text-sm rounded-full my-3 gap-2 items-center hover:bg-slate-950 duration-500 ease-in text-slate-200"
                   type="button"
-                  onClick={() => push({
-                    id:uuidv4(),
-                    course: "",
-                    school: "",
-                    grade: "",
-                    year: "",
-                  })}
+                  onClick={() =>
+                    push({
+                      id: uuidv4(),
+                      course: "",
+                      school: "",
+                      grade: "",
+                      year: "",
+                    })
+                  }
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

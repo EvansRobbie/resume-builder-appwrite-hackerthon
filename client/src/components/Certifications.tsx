@@ -5,7 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
-import {v4 as uuidv4} from 'uuid'
+import { v4 as uuidv4 } from "uuid";
+import { certificateCollectionId, databaseId } from "./envExports";
 
 const Certifications = () => {
   const { subpages } = useParams();
@@ -14,19 +15,22 @@ const Certifications = () => {
     certificate: "",
   });
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [documentId, setDocumentId] = useState<string>('')
+  const [documentId, setDocumentId] = useState<string>("");
   useEffect(() => {
     if (subpages === "certifications") {
       const fetchData = async () => {
         try {
-          const response =  await databases.listDocuments('648442d60bc9b3a9c1fe','6484ba2beb1a541642fd')
+          const response = await databases.listDocuments(
+            databaseId,
+            certificateCollectionId
+          );
           const documents = response.documents;
           // console.log(documents[0].name)
           if (documents.length > 0) {
-            const document = documents[0] 
+            const document = documents[0];
             // console.log(document)
             setInitialValues(document);
-            setDocumentId(document.$id)
+            setDocumentId(document.$id);
             setIsEdit(true);
           }
         } catch (e) {
@@ -42,19 +46,31 @@ const Certifications = () => {
       if (isEdit) {
         delete values.$databaseId;
         delete values.$collectionId;
-        await databases.updateDocument('648442d60bc9b3a9c1fe','6484ba2beb1a541642fd', documentId, values)
+        await databases.updateDocument(
+          databaseId,
+          certificateCollectionId,
+          documentId,
+          values
+        );
         toast.success("Certification Details Updated Successfully");
       } else {
-        const promise = databases.createDocument('648442d60bc9b3a9c1fe','6484ba2beb1a541642fd', uuidv4(), values);
-        promise.then(function () {
-          // console.log(response);
-          toast.success("Certification details Saved Successfully");
-          navigate("/create-resume");
-
-        }, function (error:any) {
-          console.log(error);
-          toast.error(error.message);
-        });
+        const promise = databases.createDocument(
+          databaseId,
+          certificateCollectionId,
+          uuidv4(),
+          values
+        );
+        promise.then(
+          function () {
+            // console.log(response);
+            toast.success("Certification details Saved Successfully");
+            navigate("/create-resume");
+          },
+          function (error: any) {
+            console.log(error);
+            toast.error(error.message);
+          }
+        );
         onSubmitProps.resetForm();
       }
     } catch (e) {
@@ -64,16 +80,22 @@ const Certifications = () => {
   };
   const handleDelete = async () => {
     try {
-      const promise = databases.deleteDocument("648442d60bc9b3a9c1fe",'6484ba2beb1a541642fd', documentId);
-      promise.then(function(){
-        // console.log(response)
-        toast.success("Certification etails Deleted Succesfully");
-        navigate("/create-resume");
-      },
-      function({error}:any){
-        console.log(error.message)
-        toast.error(error)
-      })
+      const promise = databases.deleteDocument(
+        databaseId,
+        certificateCollectionId,
+        documentId
+      );
+      promise.then(
+        function () {
+          // console.log(response)
+          toast.success("Certification etails Deleted Succesfully");
+          navigate("/create-resume");
+        },
+        function ({ error }: any) {
+          console.log(error.message);
+          toast.error(error);
+        }
+      );
     } catch (e) {
       console.log("Failed to delete certification Details");
       toast.error("Failed to Delete details");
