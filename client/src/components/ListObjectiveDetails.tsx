@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react'
-import { databases } from '../appWrite/AppWrite';
+import { databases } from '../appWrite/AppwriteConfig';
 import { toast } from 'react-hot-toast';
+import { databaseId, objectiveCollectionId } from './envExports';
 interface objectiveProps{
     $id:string
     objective: string;
@@ -11,7 +12,7 @@ const ListObjectiveDetails = () => {
     useEffect(() => {
           const fetchData = async () => {
             try {
-              const response =  await databases.listDocuments('648442d60bc9b3a9c1fe','6484b0381a26ad2727da')
+              const response =  await databases.listDocuments(databaseId, objectiveCollectionId)
               const documents = response.documents;
               // console.log(documents[0].name)
               if (documents.length > 0) {

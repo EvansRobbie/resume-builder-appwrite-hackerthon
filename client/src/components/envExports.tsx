@@ -1,0 +1,9 @@
+export  const databaseId = import.meta.env.VITE_APPWRITE_DATABASEID
+export const personalCollectionId = import.meta.env.VITE_APPWRITE_PERSONAL_COLLECTIONID
+export const objectiveCollectionId = import.meta.env.VITE_APPWRITE_OBJECTIVE_COLLECTIONID
+export const experienceCollectionId = import.meta.env.VITE_APPWRITE_EXPERIENCE_COLLECTIONID
+export const educationCollectionId = import.meta.env.VITE_APPWRITE_EDUCATION_COLLECTIONID
+export const skillsCollectionId = import.meta.env.VITE_APPWRITE_SKILLS_COLLECTIONID
+export const projectsCollectionId = import.meta.env.VITE_APPWRITE_PROJECTS_COLLECTIONID
+export const certificateCollectionId = import.meta.env.VITE_APPWRITE_CETRTIFICATE_COLLECTIONID
+export const refereeCollectionId = import.meta.env.VITE_APPWRITE_REFEREE_COLLECTIONID

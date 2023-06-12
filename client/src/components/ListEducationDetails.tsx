@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 import { toast } from 'react-hot-toast';
-import { databases } from '../appWrite/AppWrite';
+import { databases } from '../appWrite/AppwriteConfig';
 
 interface educationProps {
     education: {

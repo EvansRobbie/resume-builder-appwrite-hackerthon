@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import { databases } from '../appWrite/AppWrite';
+import { databases } from '../appWrite/AppwriteConfig';
 import { toast } from 'react-hot-toast';
 
 interface skillsProps{

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { databases } from "../appWrite/AppWrite";
+import { databases } from "../appWrite/AppwriteConfig";
 import { toast } from "react-hot-toast";
+import { databaseId, personalCollectionId } from "./envExports";
 interface personalProps {
     $id:string
     name: string;
@@ -18,7 +19,7 @@ const ListPersonalDetails = () => {
   useEffect(() => {
       const fetchPersonalDetails = async () => {
         try{
-          const response = await databases.listDocuments("648442d60bc9b3a9c1fe", "64844324db523d3d7e26");
+          const response = await databases.listDocuments(databaseId, personalCollectionId);
           const documents = response.documents;
           setPersonalDetails(documents);
           

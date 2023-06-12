@@ -3,7 +3,7 @@ import Editor from "./Editor";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
-import { databases } from "../appWrite/AppWrite";
+import { databases } from "../appWrite/AppwriteConfig";
 import {v4 as uuidv4} from 'uuid'
 
 const Skills = () => {

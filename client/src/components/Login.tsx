@@ -6,7 +6,7 @@ import FormikControl from "../forms/FormikControl";
 import { useResumeContext } from "../context/ResumeContext";
 import { toast } from "react-hot-toast";
 import * as Yup from "yup";
-import { account } from "../appWrite/AppWrite";
+import { account } from "../appWrite/AppwriteConfig";
 // import Button from "./Button"
 // import { useUserContext } from '../context/UserContext'
 const Login = ({

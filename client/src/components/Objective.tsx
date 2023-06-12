@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
-import { databases } from "../appWrite/AppWrite";
-import {v4 as uuidv4} from 'uuid'
+import { databases } from "../appWrite/AppwriteConfig";
+import { v4 as uuidv4 } from "uuid";
+import { databaseId, objectiveCollectionId } from "./envExports";
 
 const Objective = () => {
   const { subpages } = useParams();
@@ -14,20 +15,23 @@ const Objective = () => {
     objective: "",
   });
   const [isEditing, setIsEdit] = useState(false);
-  const [documentId, setDocumentId] = useState<string>('')
+  const [documentId, setDocumentId] = useState<string>("");
 
   useEffect(() => {
     if (subpages === "objective") {
       const fetchData = async () => {
         try {
-          const response =  await databases.listDocuments('648442d60bc9b3a9c1fe','6484b0381a26ad2727da')
+          const response = await databases.listDocuments(
+            databaseId,
+            objectiveCollectionId
+          );
           const documents = response.documents;
           // console.log(documents[0].name)
           if (documents.length > 0) {
-            const document = documents[0] 
+            const document = documents[0];
             // console.log(document)
             setInitialValues(document);
-            setDocumentId(document.$id)
+            setDocumentId(document.$id);
             setIsEdit(true);
           }
         } catch (e) {
@@ -43,19 +47,31 @@ const Objective = () => {
       if (isEditing) {
         delete values.$databaseId;
         delete values.$collectionId;
-        await databases.updateDocument('648442d60bc9b3a9c1fe','6484b0381a26ad2727da', documentId, values)
+        await databases.updateDocument(
+          databaseId,
+          objectiveCollectionId,
+          documentId,
+          values
+        );
         toast.success("Objective Details Updated Successfully");
       } else {
-        const promise = databases.createDocument('648442d60bc9b3a9c1fe','6484b0381a26ad2727da', uuidv4(), values);
-        promise.then(function () {
-          // console.log(response);
-          toast.success("Objective details Saved Successfully");
-          navigate("/create-resume");
-
-        }, function (error:any) {
-          console.log(error);
-          toast.error(error.message);
-        });
+        const promise = databases.createDocument(
+          databaseId,
+          objectiveCollectionId,
+          uuidv4(),
+          values
+        );
+        promise.then(
+          function () {
+            // console.log(response);
+            toast.success("Objective details Saved Successfully");
+            navigate("/create-resume");
+          },
+          function (error: any) {
+            console.log(error);
+            toast.error(error.message);
+          }
+        );
         onSubmitProps.resetForm();
       }
     } catch (e) {
@@ -66,15 +82,21 @@ const Objective = () => {
 
   const handleDelete = async () => {
     try {
-      const promise = databases.deleteDocument("648442d60bc9b3a9c1fe",'6484b0381a26ad2727da', documentId);
-      promise.then(function(){
-        // console.log(response)
-        toast.success("Objective details Deleted Succesfully");
-        navigate("/create-resume");
-      },
-      function({error}:any){
-        console.log(error.message)
-      })
+      const promise = databases.deleteDocument(
+        databaseId,
+        objectiveCollectionId,
+        documentId
+      );
+      promise.then(
+        function () {
+          // console.log(response)
+          toast.success("Objective details Deleted Succesfully");
+          navigate("/create-resume");
+        },
+        function ({ error }: any) {
+          console.log(error.message);
+        }
+      );
     } catch (e) {
       console.log("Failed to delete Objective Details");
       toast.error("Failed to Delete Objective details");

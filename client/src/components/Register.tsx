@@ -2,7 +2,7 @@ import { Form, Formik } from "formik";
 import FormikControl from "../forms/FormikControl";
 import { toast } from "react-hot-toast";
 import * as Yup from "yup";
-import { account } from "../appWrite/AppWrite";
+import { account } from "../appWrite/AppwriteConfig";
 import {v4 as uuidv4} from 'uuid'
 const Register = ({
   setToggle,

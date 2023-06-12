@@ -1,7 +1,7 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { account } from "../appWrite/AppWrite";
+import { account } from "../appWrite/AppwriteConfig";
 interface contextProp {
   user: { name: string } | null;
   setUser: React.Dispatch<React.SetStateAction<{ name: string } | null>>;
