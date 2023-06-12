@@ -23,7 +23,7 @@ const Register = ({
   });
   const onSubmit = async (values: any) => {
   try {
-    const promise = await account.create(
+    const promise = account.create(
       uuidv4(),
       values.email,
       values.password,
@@ -35,14 +35,14 @@ const Register = ({
           setToggle(true);
           toast.success("Registration Successful. Please Login!");
       },
-      function(err:string){
+      function(err:any){
           console.log(err)
           toast.error("Registration Failed");
       }
     );
-  } catch ({type}:any) {
-    console.log(type);
-    toast.error(type);
+  } catch (e) {
+    console.log(e);
+    toast.error("Registration Failed");
   }
     // try {
     //   await axios.post("/register", values);

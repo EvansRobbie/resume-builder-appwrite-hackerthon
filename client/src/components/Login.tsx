@@ -34,15 +34,16 @@ const Login = ({
   const onSubmit = async (values: any) => {
     // e.preventDefault()
     try {
-      const response = await account.createEmailSession(values.username, values.password)
+      const response = await account.createEmailSession(values.email, values.password)
+
       console.log()
       setUser(response);
       navigate("/");
       setLoginModal(false);
       toast.success(`Logged in as ${response.providerUid}`);
-    } catch ({response}:any) {
-      console.log("Login Failed", response.message);
-      toast.error( response.message);
+    } catch (e:any) {
+      console.log("Login Failed", e);
+      toast.error(e);
     }
     // if(user){
     //   return <Navigate to={'/'}/>
