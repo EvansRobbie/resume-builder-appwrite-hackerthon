@@ -4,11 +4,10 @@ import html2pdf from "html2pdf.js";
 import Loading from "../components/Loading";
 import { useResumeContext } from "../context/ResumeContext";
 import ListPersonalDetails from "../components/ListPersonalDetails";
+import ListObjectiveDetails from "../components/ListObjectiveDetails";
 
 interface resumeProps {
-  objective: {
-    objective: string;
-  }[];
+ 
   experience: {
     experiences: {
       companyName: string;
@@ -98,22 +97,10 @@ const ViewResume = ({ handleModal }: { handleModal: () => void }) => {
         </svg>
       </div>
 
-      <div className="max-w-3xl mx-auto " id="resume">
+      <div className="relative max-w-3xl mx-auto " id="resume">
        <ListPersonalDetails/>
 
-        {resumeData?.objective && resumeData?.objective.length > 0 && (
-          <div className="">
-            <div className="heading-bg">
-              <h1 className="h1">objective</h1>
-            </div>
-            <div
-              style={{ whiteSpace: "pre-line" }}
-              className="py-3 text-sm px-4"
-            >
-              {resumeData?.objective[0].objective}
-            </div>
-          </div>
-        )}
+        <ListObjectiveDetails/>
         {resumeData?.experience && resumeData?.experience.length > 0 && (
           <div>
             <div className="heading-bg">

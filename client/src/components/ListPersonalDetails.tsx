@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { databases } from "../appWrite/AppWrite";
 import { toast } from "react-hot-toast";
 interface personalProps {
-    id:string
+    $id:string
     name: string;
     email: string;
     address: string;
@@ -34,7 +34,7 @@ const ListPersonalDetails = () => {
     <>
         
       {personalDetails && personalDetails.length > 0 && personalDetails.map((personal) => (
-       <div key={personal.id} className="flex flex-col items-center py-8">
+       <div key={personal.$id} className="flex flex-col items-center py-8">
        <h1 className="text-2xl font-bold uppercase m-0">
          {personal.name}
        </h1>
