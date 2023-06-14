@@ -95,7 +95,7 @@ const LoginModal: React.FC<modalProp> = ({ loginModal, setLoginModal }) => {
                 style={flipAnimation}
                 onMouseOver={mouseHover}
                 onMouseLeave={handleMouseLeave}
-                className={` absolute bg-slate-900 group w-1/2 h-full hidden md:block  `}
+                className={` absolute bg-slate-900 z-20 group w-1/2 h-full hidden md:block  `}
               >
                 <animated.div
                   style={flipPointAnimation}
