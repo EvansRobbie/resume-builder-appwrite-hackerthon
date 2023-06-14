@@ -8,8 +8,10 @@ import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { v4 as uuidv4 } from "uuid";
 import { databaseId, educationCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 const Education = () => {
+  const { user, documentId, userId } = useResumeContext();
   const { subpages } = useParams();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState({
@@ -24,37 +26,40 @@ const Education = () => {
     ],
   });
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [documentId, setDocumentId] = useState<string>("");
 
   useEffect(() => {
     if (subpages === "education") {
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments(
+          const response = await databases.getDocument(
             databaseId,
-            educationCollectionId
+            educationCollectionId,
+            documentId
           );
-          const documents = response.documents;
-          // console.log(documents)
-          if (documents.length > 0) {
-            const document = documents[0];
-            // console.log(document)
+          console.log(response)
             const updatedInitialValues = {
-              education: JSON.parse(document.education),
+              education: JSON.parse(response.education),
             };
             setInitialValues(updatedInitialValues);
-            // console.log(updatedInitialValues.experiences)
-            setDocumentId(document.$id);
             setIsEdit(true);
-          }
+          
         } catch (e) {
           console.log("Failed to fetch Education details", e);
-          toast.error("Failed to fetch Education details");
+          // toast.error("Failed to fetch Education details");
         }
       };
-      fetchData();
+    
+        if (userId === documentId) {
+          fetchData();
+        } else {
+          // userId does not match documentId, set fields to empty
+          setInitialValues(initialValues);
+          setIsEdit(false);
+          // toast.error("Failed to fetch Education details");
+        }
+      
     }
-  }, [subpages]);
+  }, [subpages, userId, user]);
   // console.log(initialValues)
   const onSubmit = async (
     values: { education: string[] | any },
@@ -78,7 +83,7 @@ const Education = () => {
         const promise = databases.createDocument(
           databaseId,
           educationCollectionId,
-          uuidv4(),
+          user?.$id,
           {
             education: educationString,
           }
