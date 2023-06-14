@@ -22,7 +22,7 @@ const AnimatedText = ({text, className}:{text:string, className:string}) => {
             opacity:1,
             y:0,
             transition:{
-                duration:2,
+                duration:0.5,
             }
         }
     }
