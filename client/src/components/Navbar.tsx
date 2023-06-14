@@ -16,7 +16,7 @@ const Navbar = ({
   //   return <div className="w-screen h-screen absolute top-0 left-0 z-20">Loading...</div>;
   // }
   return (
-    <div className="absolute top-0 left-0 z-10 opacity-100 h-20 shadow-md shadow-slate-950/20 w-full ">
+    <div className="absolute top-0 left-0 z-20 opacity-100 h-20 shadow-md shadow-slate-950/20 w-full ">
       <nav className="h-full flex items-center justify-between max-w-6xl px-4 mx-auto">
         <div className="flex items-center gap-2 w-1/2">
           <Link to="/">
