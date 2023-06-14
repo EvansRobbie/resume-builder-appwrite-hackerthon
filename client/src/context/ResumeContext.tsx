@@ -4,6 +4,8 @@ import { toast } from "react-hot-toast";
 import { account } from "../appWrite/AppwriteConfig";
 interface contextProp {
   user: { name: string, $id:string } | null;
+  userId: any
+  documentId:any
   setUser: React.Dispatch<React.SetStateAction<{ name: string, $id:string } | null>>;
   ready: boolean;
   handleLogout: () => void;
@@ -13,6 +15,9 @@ const ResumeContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<{ name: string, $id:string  } | null>(null);
   const [ready, setReady] = useState<boolean>(false);
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
+  // const [documentId, setDocumentId] = useState('')
+  const documentId = userId;
   useEffect(() => {
     const fetchUser = async () => {
       if (!user) {
@@ -49,7 +54,7 @@ const ResumeContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
   return (
-    <ResumeContext.Provider value={{ user, setUser, ready, handleLogout }}>
+    <ResumeContext.Provider value={{ user, setUser, ready, handleLogout, userId, documentId }}>
       {children}
     </ResumeContext.Provider>
   );

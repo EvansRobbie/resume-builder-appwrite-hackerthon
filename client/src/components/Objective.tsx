@@ -5,43 +5,48 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
-import { v4 as uuidv4 } from "uuid";
 import { databaseId, objectiveCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 const Objective = () => {
   const { subpages } = useParams();
   const navigate = useNavigate();
+  const {user,userId, documentId} = useResumeContext()
+  // const userId = localStorage.getItem('userId');
+  // const documentId = userId;
   const [initialValues, setInitialValues] = useState({
     objective: "",
   });
   const [isEditing, setIsEdit] = useState(false);
-  const [documentId, setDocumentId] = useState<string>("");
+  // const [documentId, setDocumentId] = useState<string>("");
 
   useEffect(() => {
     if (subpages === "objective") {
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments(
+          const response = await databases.getDocument(
             databaseId,
-            objectiveCollectionId
+            objectiveCollectionId,
+            documentId
           );
-          const documents = response.documents;
-          // console.log(documents[0].name)
-          if (documents.length > 0) {
-            const document = documents[0];
-            // console.log(document)
-            setInitialValues(document);
-            setDocumentId(document.$id);
+            setInitialValues(response);
             setIsEdit(true);
-          }
+          
         } catch (e) {
           console.log("Failed to fetch Objective details", e);
           toast.error("Failed to fetch Objective details");
         }
       };
-      fetchData();
+     
+      if (userId === documentId) {
+        fetchData();
+      } else {
+        // userId does not match documentId, set fields to empty
+        setInitialValues(initialValues);
+        setIsEdit(false);
+      }
     }
-  }, [subpages]);
+  }, [subpages, userId, user]);
   const onSubmit = async (values: any, onSubmitProps: any) => {
     try {
       if (isEditing) {
@@ -58,7 +63,7 @@ const Objective = () => {
         const promise = databases.createDocument(
           databaseId,
           objectiveCollectionId,
-          uuidv4(),
+          user?.$id,
           values
         );
         promise.then(

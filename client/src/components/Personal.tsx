@@ -10,10 +10,8 @@ import { databaseId, personalCollectionId } from "./envExports";
 import { useResumeContext } from "../context/ResumeContext";
 const Personal = () => {
   const { subpages } = useParams();
-  const {user} = useResumeContext()
-  const userId = localStorage.getItem('userId');
-  // const [documentId, setDocumentId] = useState('')
-  const documentId = userId; // Update this based on your logic to get the documentId
+  const {user, documentId, userId} = useResumeContext()
+ // Update this based on your logic to get the documentId
   // console.log(userId)
   // console.log(documentId)
   const navigate = useNavigate();
@@ -43,6 +41,7 @@ const Personal = () => {
             setIsEdit(true);
           }, ({response}:any)=>{
             console.log(response.message)
+            toast.error(response.message)
           })
           // console.log(response);
           // const documents = response.documents;

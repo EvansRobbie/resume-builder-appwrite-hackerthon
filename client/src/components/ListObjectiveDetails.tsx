@@ -2,24 +2,22 @@ import {useState, useEffect} from 'react'
 import { databases } from '../appWrite/AppwriteConfig';
 import { toast } from 'react-hot-toast';
 import { databaseId, objectiveCollectionId } from './envExports';
+import { useResumeContext } from '../context/ResumeContext';
 interface objectiveProps{
     $id:string
     objective: string;
 }
 
 const ListObjectiveDetails = () => {
-    const [objectiveDetails, setObjectiveDetails] = useState<objectiveProps[]| null>(null)
+  const { documentId} = useResumeContext()
+    const [objectiveDetails, setObjectiveDetails] = useState<objectiveProps| null>(null)
     useEffect(() => {
           const fetchData = async () => {
             try {
-              const response =  await databases.listDocuments(databaseId, objectiveCollectionId)
-              const documents = response.documents;
+              const response =  await databases.getDocument(databaseId, objectiveCollectionId, documentId)
               // console.log(documents[0].name)
-              if (documents.length > 0) {
-                
-                // console.log(document)
-                setObjectiveDetails(documents);
-              }
+                setObjectiveDetails(response);
+              
             } catch (e) {
               console.log("Failed to fetch Objective details", e);
               toast.error("Failed to fetch Objective details");
@@ -30,8 +28,8 @@ const ListObjectiveDetails = () => {
     //   console.log(objectiveDetails)
     return (
     <>
-    {objectiveDetails && objectiveDetails.length > 0 &&
-        <div key={objectiveDetails[0].$id}>
+    {objectiveDetails &&
+        <div key={objectiveDetails.$id}>
         <div className="heading-bg">
           <h1 className="h1">objective</h1>
         </div>
@@ -39,7 +37,7 @@ const ListObjectiveDetails = () => {
           style={{ whiteSpace: "pre-line" }}
           className="py-3 text-sm px-4"
         >
-          {objectiveDetails[0].objective}
+          {objectiveDetails.objective}
         </div>
       </div>
     }
