@@ -36,11 +36,14 @@ const Login = ({
     try {
       const promise = account.createEmailSession(values.email, values.password)
         promise.then((response:any)=>{
-          setUser(response);
-          // console.log(response)
-          navigate("/");
-          setLoginModal(false);
-          toast.success(`Logged in as ${response.providerUid}`);
+            setUser(response);
+            // console.log(response)
+            navigate("/");
+            setLoginModal(false);
+            localStorage.setItem("userId", response.userId);
+            toast.success(`Logged in as ${response.providerUid}`);
+            window.location.reload();
+         
 
         }, ({response}:any)=>{
           console.log(response.message)

@@ -10,7 +10,11 @@ const Navbar = ({
   handleModal: () => void;
   handleLoginModal: () => void;
 }) => {
-  const { user, handleLogout } = useResumeContext();
+  const { user, handleLogout, ready } = useResumeContext();
+  // if (!ready) {
+  //   // Render a loading state while user data is being fetched
+  //   return <div className="w-screen h-screen absolute top-0 left-0 z-20">Loading...</div>;
+  // }
   return (
     <div className="absolute top-0 left-0 z-10 opacity-100 h-20 shadow-md shadow-slate-950/20 w-full ">
       <nav className="h-full flex items-center justify-between max-w-6xl px-4 mx-auto">
@@ -49,12 +53,12 @@ const Navbar = ({
             </Tippy>
           </div>
         </div>
-        {user ? (
+        {user && ready  ? (
           <div className="flex items-center gap-4">
             <h4 className="text-sm hidden md:block font-bold capitalize">
               Welcome&nbsp;
               <span className="uppercase text-slate-100 bg-slate-950/40 px-2 py-0.5 text-sx md:px-4 md:py-1 rounded-sm">
-                {user?.name}
+                { user?.name}
               </span>
             </h4>
             <button

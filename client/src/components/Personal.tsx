@@ -4,16 +4,21 @@ import FormikControl from "../forms/FormikControl";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { databases } from "../appWrite/AppwriteConfig";
 import { databaseId, personalCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 const Personal = () => {
   const { subpages } = useParams();
+  const {user} = useResumeContext()
+  const userId = localStorage.getItem('userId');
+  // const [documentId, setDocumentId] = useState('')
+  const documentId = userId; // Update this based on your logic to get the documentId
+  // console.log(userId)
+  // console.log(documentId)
   const navigate = useNavigate();
   //  console.log(params)
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [documentId, setDocumentId] = useState<string>("");
-  // const [ready, set]
   const [initialValues, setInitialValues] = useState({
     name: "",
     email: "",
@@ -26,66 +31,89 @@ const Personal = () => {
     if (subpages === "personal") {
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments(
+          const promise = databases.getDocument(
             databaseId,
-            personalCollectionId
+            personalCollectionId,
+            documentId
           );
-          const documents = response.documents;
-          // console.log(documents[0].name)
-          if (documents.length > 0) {
-            const document = documents[0];
-            // console.log(document)
-            setInitialValues(document);
-            setDocumentId(document.$id);
+          promise.then((response:any)=>{
+            // console.log(response)
+            setInitialValues(response);
+            // setDocumentId(response.$id)
             setIsEdit(true);
-          }
+          }, ({response}:any)=>{
+            console.log(response.message)
+          })
+          // console.log(response);
+          // const documents = response.documents;
+        
+            // const document = documents[0];
+            // console.log(documents);
+          
         } catch (e) {
           console.log("Failed to fetch personal Data", e);
           toast.error("Failed to fetch personal details");
         }
       };
-      fetchData();
-    }
-  }, [subpages]);
-  //  console.log(documendId)
-  const onSubmit = async (values: any, onSubmitProps: any) => {
-    // console.log(values)
-    try {
-      if (isEdit) {
-        delete values.$databaseId;
-        delete values.$collectionId;
-        await databases.updateDocument(
-          databaseId,
-          personalCollectionId,
-          documentId,
-          values
-        );
-        toast.success(" Details Updated Successfully");
+  
+      // Set documentId based on userId
+      
+  
+      if (userId === documentId) {
+        fetchData();
       } else {
-        const promise = databases.createDocument(
-          databaseId,
-          personalCollectionId,
-          uuidv4(),
-          values
-        );
-        promise.then(
-          function (response: any) {
-            console.log(response);
-            toast.success("Details Saved Successfully");
-          },
-          function (error: any) {
-            console.log(error);
-            toast.error(error);
-          }
-        );
-        onSubmitProps.resetForm();
-        navigate("/create-resume");
+        // userId does not match documentId, set fields to empty
+        setInitialValues({ name: "",
+        email: "",
+        address: "",
+        phone: "",
+        website: "",
+        linked: "",});
+        setIsEdit(false);
       }
-    } catch (e) {
-      console.log("Failed To Submit Details", e);
-      toast.error("Failed To Submit Details");
     }
-  };
+  }, [subpages, userId, user]);
+  //  console.log(documentId)
+  //  {userId === documentId ? console.log(true) : console.log(false)}
+    const onSubmit = async (values: any, onSubmitProps: any) => {
+      // console.log(values)
+      try {
+        if (isEdit) {
+          delete values.$databaseId;
+          delete values.$collectionId;
+          await databases.updateDocument(
+            databaseId,
+            personalCollectionId,
+            documentId,
+            values
+          );
+          toast.success(" Details Updated Successfully");
+        } else {
+        
+          const promise = databases.createDocument(
+            databaseId,
+            personalCollectionId,
+            user?.$id,
+            values
+          );
+          promise.then(
+            function () {
+              // console.log(response);
+              toast.success("Details Saved Successfully");
+            },
+            function (error: any) {
+              console.log(error);
+              toast.error(error);
+            }
+          );
+          onSubmitProps.resetForm();
+          navigate("/create-resume");
+        }
+      } catch (e) {
+        console.log("Failed To Submit Details", e);
+        toast.error("Failed To Submit Details");
+      }
+    };
   const handleDelete = () => {
     try {
       const promise = databases.deleteDocument(
@@ -99,8 +127,8 @@ const Personal = () => {
           toast.success("Details Deleted Succesfully");
           navigate("/create-resume");
         },
-        function ({ error }: any) {
-          console.log(error.message);
+        function ({ response }: any) {
+          console.log(response.message);
         }
       );
     } catch (e) {

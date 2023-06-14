@@ -4,7 +4,8 @@ const setProject = import.meta.env.VITE_APPWRITE_SET_PROJECT
 const client = new Client()
 client
     .setEndpoint(setEndpoint)
-    .setProject(setProject);
+    .setProject(setProject)
+    
 export const account = new Account(client);
 
 // Database
