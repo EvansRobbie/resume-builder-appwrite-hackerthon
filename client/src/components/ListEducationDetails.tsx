@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { databaseId, educationCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 interface educationProps {
   education: {
@@ -14,26 +15,29 @@ interface educationProps {
 }
 
 const ListEducationDetails = () => {
+  const { documentId} = useResumeContext()
   const [educationDetails, seteducationDetails] =
     useState<educationProps | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await databases.listDocuments(
+        const promise =  databases.getDocument(
           databaseId,
-          educationCollectionId
+          educationCollectionId,
+          documentId
         );
-        const documents = response.documents;
-        // console.log(documents)
-        if (documents.length > 0) {
-          const document = documents[0];
-          // console.log(document)
+        promise.then((response:any)=>{
           const updatedInitialValues = {
-            education: JSON.parse(document.education),
+            education: JSON.parse(response.education),
           };
           seteducationDetails(updatedInitialValues);
-        }
+
+        }, ({response}:any)=>{
+          console.log(response.message)
+        })
+       
+        
       } catch (e) {
         console.log("Failed to fetch Education details", e);
         toast.error("Failed to fetch Education details");

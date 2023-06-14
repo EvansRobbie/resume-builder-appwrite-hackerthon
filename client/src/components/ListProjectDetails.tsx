@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { databaseId, projectsCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 interface projectProps {
   project: {
@@ -11,26 +12,29 @@ interface projectProps {
   }[];
 }
 const ListProjectDetails = () => {
+  const { documentId} = useResumeContext()
   const [projectDetails, setProjectDetails] = useState<projectProps | null>(
     null
   );
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await databases.listDocuments(
+        const promise = databases.getDocument(
           databaseId,
-          projectsCollectionId
+          projectsCollectionId,
+          documentId
         );
-        const documents = response.documents;
-        // console.log(documents)
-        if (documents.length > 0) {
-          const document = documents[0];
-          // console.log(document)
+        promise.then((response:any)=>{
           const updatedInitialValues = {
-            project: JSON.parse(document.project),
+            project: JSON.parse(response.project),
           };
           setProjectDetails(updatedInitialValues);
-        }
+
+        }, ({response}:any)=>{
+          console.log(response.message)
+        })
+       
+        
       } catch (e) {
         console.log("Failed to fetch Projects details", e);
         toast.error("Failed to fetch projects details");

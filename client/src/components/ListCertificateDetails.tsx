@@ -2,27 +2,30 @@ import { useState, useEffect } from "react";
 import { databases } from "../appWrite/AppwriteConfig";
 import { toast } from "react-hot-toast";
 import { certificateCollectionId, databaseId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 interface certificationProps {
   certificate: string;
 }
 const ListCertificateDetails = () => {
+  const { documentId} = useResumeContext()
   const [certificateDetails, setCertificateDetails] =
     useState<certificationProps | null>(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await databases.listDocuments(
+        const promise =  databases.getDocument(
           databaseId,
-          certificateCollectionId
+          certificateCollectionId, 
+          documentId
         );
-        const documents = response.documents;
-        // console.log(documents[0].name)
-        if (documents.length > 0) {
-          const document = documents[0];
-          // console.log(document)
-          setCertificateDetails(document);
-        }
+        promise.then((response:any)=>{
+          setCertificateDetails(response);
+
+        }, ({response}:any)=>{
+          console.log(response.message)
+        })
+        
       } catch (e) {
         console.log("Failed to fetch Certification details", e);
         toast.error("Failed to fetch Certification details");

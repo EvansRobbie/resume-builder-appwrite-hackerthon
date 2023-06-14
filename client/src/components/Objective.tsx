@@ -24,17 +24,22 @@ const Objective = () => {
     if (subpages === "objective") {
       const fetchData = async () => {
         try {
-          const response = await databases.getDocument(
+          const promise =  databases.getDocument(
             databaseId,
             objectiveCollectionId,
             documentId
           );
+          promise.then((response:any)=>{
+
             setInitialValues(response);
             setIsEdit(true);
+          }, ({response}:any)=>{
+            console.log(response.message)
+          })
           
         } catch (e) {
           console.log("Failed to fetch Objective details", e);
-          // toast.error("Failed to fetch Objective details");
+          toast.error("Failed to fetch Objective details");
         }
       };
      

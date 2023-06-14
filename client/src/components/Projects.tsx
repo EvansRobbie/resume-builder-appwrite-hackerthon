@@ -89,7 +89,7 @@ const Projects = () => {
           () => {
             // console.log(response);
             toast.success("Details Saved Successfully");
-            navigate("/create-resume/experience");
+            navigate("/create-resume");
           },
           (error: { response: { message: string } }) => {
             console.log(error);

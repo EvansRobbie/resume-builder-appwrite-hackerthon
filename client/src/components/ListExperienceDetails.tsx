@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { databaseId, experienceCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 interface experiencesProps {
   experiences: {
@@ -14,26 +15,28 @@ interface experiencesProps {
   }[];
 }
 const ListExperienceDetails = () => {
-  // const { documentId } = useResumeContext();
+  const { documentId } = useResumeContext();
   const [experienceDetails, setExperienceeDetails] =
     useState<experiencesProps | null>(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await databases.listDocuments(
+        const promise =  databases.getDocument(
           databaseId,
-          experienceCollectionId
+          experienceCollectionId,
+          documentId
         );
-        const documents = response.documents;
-        // console.log(documents)
-        if (documents.length > 0) {
-          const document = documents[0];
-          // console.log(document)
-          const updatedInitialValues = {
-            experiences: JSON.parse(document.experiences),
-          };
-          setExperienceeDetails(updatedInitialValues);
-        }
+        promise.then((response:any)=>{
+          // console.log(response)
+            const updatedInitialValues = {
+              experiences: JSON.parse(response.experiences),
+            };
+            setExperienceeDetails(updatedInitialValues);
+
+        }, ({response}:any)=>{
+          console.log(response.message)
+        })
+        
       } catch (e) {
         console.log("Failed to fetch Experience details", e);
         toast.error("Failed to fetch Experience details");

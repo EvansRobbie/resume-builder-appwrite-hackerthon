@@ -21,14 +21,19 @@ const ListPersonalDetails = () => {
   useEffect(() => {
     const fetchPersonalDetails = async () => {
       try {
-        const response = await databases.getDocument(
+        const promise =  databases.getDocument(
           databaseId,
           personalCollectionId,
           userId
         );
-        // console.log(response)
-        // const documents = response.documents;
-        setPersonalDetails(response);
+        promise.then((response:any)=>{
+          // console.log(response)
+          // const documents = response.documents;
+          setPersonalDetails(response);
+
+        }, ({response}:any)=>{
+          console.log(response.message)
+        })
       } catch (e) {
         console.log("Failed to fetch personal details", e);
         toast.error("Failed to fetch personal details");
@@ -36,7 +41,7 @@ const ListPersonalDetails = () => {
     };
     fetchPersonalDetails();
   }, []);
-  console.log(personalDetails);
+  // console.log(personalDetails);
   return (
     <>
       {personalDetails && (

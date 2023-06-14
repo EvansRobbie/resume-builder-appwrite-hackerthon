@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { databaseId, refereeCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 interface refereeProps {
   referees: {
     id: string;
@@ -13,6 +14,7 @@ interface refereeProps {
   }[];
 }
 const ListRefereeDetails = () => {
+  const { documentId} = useResumeContext()
   const [refereeDetails, setRefereeDetails] = useState<refereeProps | null>(
     null
   );
@@ -20,20 +22,21 @@ const ListRefereeDetails = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await databases.listDocuments(
+        const promise = databases.getDocument(
           databaseId,
-          refereeCollectionId
+          refereeCollectionId,
+          documentId
         );
-        const documents = response.documents;
-        // console.log(documents)
-        if (documents.length > 0) {
-          const document = documents[0];
-          // console.log(document)
+        promise.then((response:any)=>{
           const updatedInitialValues = {
-            referees: JSON.parse(document.referees),
+            referees: JSON.parse(response.referees),
           };
           setRefereeDetails(updatedInitialValues);
-        }
+
+        }, ({response}:any)=>{
+          console.log(response.message)
+        })
+        
       } catch (e) {
         console.log("Failed to fetch Referee details", e);
         toast.error("Failed to fetch Referee details");

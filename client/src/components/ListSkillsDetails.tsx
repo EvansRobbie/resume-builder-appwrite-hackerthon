@@ -2,28 +2,31 @@ import { useState, useEffect } from "react";
 import { databases } from "../appWrite/AppwriteConfig";
 import { toast } from "react-hot-toast";
 import { databaseId, skillsCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 interface skillsProps {
   content: string;
 }
 const ListSkillsDetails = () => {
+  const { documentId} = useResumeContext()
   const [skillsDetails, setSkillsDetails] = useState<skillsProps[] | null>(
     null
   );
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await databases.listDocuments(
+        const promise = databases.getDocument(
           databaseId,
-          skillsCollectionId
+          skillsCollectionId,
+          documentId
         );
-        const documents = response.documents;
-        // console.log(documents[0].name)
-        if (documents.length > 0) {
-          const document = documents[0];
-          // console.log(document.content)
-          setSkillsDetails(document.content);
-        }
+        promise.then((response:any)=>{
+          setSkillsDetails(response.content);
+
+        }, ({response}:any)=>{
+          console.log(response.message)
+        })
+        
       } catch (e) {
         console.log("Failed to fetch Skills details", e);
         toast.error("Failed to fetch Skills details");
