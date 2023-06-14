@@ -8,8 +8,10 @@ import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { v4 as uuidv4 } from "uuid";
 import { databaseId, refereeCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 const Reference = () => {
+  const { user, documentId, userId } = useResumeContext();
   const { subpages } = useParams();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState({
@@ -25,38 +27,44 @@ const Reference = () => {
     ],
   });
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [documentId, setDocumentId] = useState<string>("");
 
   useEffect(() => {
     if (subpages === "reference") {
-      // setIsEdit(true)
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments(
+          const promise = databases.getDocument(
             databaseId,
-            refereeCollectionId
+            refereeCollectionId,
+            documentId
           );
-          const documents = response.documents;
-          // console.log(documents)
-          if (documents.length > 0) {
-            const document = documents[0];
-            // console.log(document)
-            const updatedInitialValues = {
-              referees: JSON.parse(document.referees),
-            };
-            setInitialValues(updatedInitialValues);
-            // console.log(updatedInitialValues.experiences)
-            setDocumentId(document.$id);
-            setIsEdit(true);
-          }
+            promise.then((response:any)=>{
+
+              // console.log(response)
+              const updatedInitialValues = {
+                referees: JSON.parse(response.referees),
+              };
+              setInitialValues(updatedInitialValues);
+              // console.log(updatedInitialValues.experiences)
+    
+              setIsEdit(true);
+            }, ({response}:any)=>{
+              console.log(response.message);
+              toast.error(`Please Fill in the details. ${response.message}`);
+            })
         } catch (e) {
-          console.log("Failed to fetch Referee details", e);
-          toast.error("Failed to fetch Referee details");
+          console.log("Failed to fetch Experience details", e);
+          // toast.error("Failed to fetch Experience details");
         }
       };
-      fetchData();
+      if (userId === documentId) {
+        fetchData();
+      } else {
+        // userId does not match documentId, set fields to empty
+        setInitialValues(initialValues);
+        setIsEdit(false);
+      }
     }
-  }, [subpages]);
+  }, [subpages, userId, user]);
   const onSubmit = async (
     values: { referees: string[] | any },
     onSubmitProps: { resetForm: () => void }
@@ -79,7 +87,7 @@ const Reference = () => {
         const promise = databases.createDocument(
           databaseId,
           refereeCollectionId,
-          uuidv4(),
+          user?.$id,
           {
             referees: refereesString,
           }
