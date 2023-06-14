@@ -34,7 +34,7 @@ const Objective = () => {
           
         } catch (e) {
           console.log("Failed to fetch Objective details", e);
-          toast.error("Failed to fetch Objective details");
+          // toast.error("Failed to fetch Objective details");
         }
       };
      

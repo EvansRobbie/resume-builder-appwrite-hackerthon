@@ -10,8 +10,8 @@ import { databaseId, personalCollectionId } from "./envExports";
 import { useResumeContext } from "../context/ResumeContext";
 const Personal = () => {
   const { subpages } = useParams();
-  const {user, documentId, userId} = useResumeContext()
- // Update this based on your logic to get the documentId
+  const { user, documentId, userId } = useResumeContext();
+  // Update this based on your logic to get the documentId
   // console.log(userId)
   // console.log(documentId)
   const navigate = useNavigate();
@@ -34,85 +34,87 @@ const Personal = () => {
             personalCollectionId,
             documentId
           );
-          promise.then((response:any)=>{
-            // console.log(response)
-            setInitialValues(response);
-            // setDocumentId(response.$id)
-            setIsEdit(true);
-          }, ({response}:any)=>{
-            console.log(response.message)
-            toast.error(response.message)
-          })
+          promise.then(
+            (response: any) => {
+              // console.log(response)
+              setInitialValues(response);
+              // setDocumentId(response.$id)
+              setIsEdit(true);
+            },
+            ({ response }: any) => {
+              console.log(response.message);
+              toast.error(response.message);
+            }
+          );
           // console.log(response);
           // const documents = response.documents;
-        
-            // const document = documents[0];
-            // console.log(documents);
-          
+
+          // const document = documents[0];
+          // console.log(documents);
         } catch (e) {
           console.log("Failed to fetch personal Data", e);
           toast.error("Failed to fetch personal details");
         }
       };
-  
+
       // Set documentId based on userId
-      
-  
+
       if (userId === documentId) {
         fetchData();
       } else {
         // userId does not match documentId, set fields to empty
-        setInitialValues({ name: "",
-        email: "",
-        address: "",
-        phone: "",
-        website: "",
-        linked: "",});
+        setInitialValues({
+          name: "",
+          email: "",
+          address: "",
+          phone: "",
+          website: "",
+          linked: "",
+        });
         setIsEdit(false);
       }
     }
   }, [subpages, userId, user]);
   //  console.log(documentId)
   //  {userId === documentId ? console.log(true) : console.log(false)}
-    const onSubmit = async (values: any, onSubmitProps: any) => {
-      // console.log(values)
-      try {
-        if (isEdit) {
-          delete values.$databaseId;
-          delete values.$collectionId;
-          await databases.updateDocument(
-            databaseId,
-            personalCollectionId,
-            documentId,
-            values
-          );
-          toast.success(" Details Updated Successfully");
-        } else {
-        
-          const promise = databases.createDocument(
-            databaseId,
-            personalCollectionId,
-            user?.$id,
-            values
-          );
-          promise.then(
-            function () {
-              // console.log(response);
-              toast.success("Details Saved Successfully");
-            },
-            function (error: any) {
-              console.log(error);
-              toast.error(error);
-            }
-          );
-          onSubmitProps.resetForm();
-          navigate("/create-resume");
-        }
-      } catch (e) {
-        console.log("Failed To Submit Details", e);
-        toast.error("Failed To Submit Details");
+  const onSubmit = async (values: any, onSubmitProps: any) => {
+    // console.log(values)
+    try {
+      if (isEdit) {
+        delete values.$databaseId;
+        delete values.$collectionId;
+        await databases.updateDocument(
+          databaseId,
+          personalCollectionId,
+          documentId,
+          values
+        );
+        toast.success(" Details Updated Successfully");
+      } else {
+        const promise = databases.createDocument(
+          databaseId,
+          personalCollectionId,
+          user?.$id,
+          values
+        );
+        promise.then(
+          function () {
+            // console.log(response);
+            toast.success("Details Saved Successfully");
+          },
+          function (error: any) {
+            console.log(error);
+            toast.error(error);
+          }
+        );
+        onSubmitProps.resetForm();
+        navigate("/create-resume");
       }
-    };
+    } catch (e) {
+      console.log("Failed To Submit Details", e);
+      toast.error("Failed To Submit Details");
+    }
+  };
   const handleDelete = () => {
     try {
       const promise = databases.deleteDocument(

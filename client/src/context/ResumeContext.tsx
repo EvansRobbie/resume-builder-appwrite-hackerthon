@@ -3,33 +3,38 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { account } from "../appWrite/AppwriteConfig";
 interface contextProp {
-  user: { name: string, $id:string } | null;
-  userId: any
-  documentId:any
-  setUser: React.Dispatch<React.SetStateAction<{ name: string, $id:string } | null>>;
+  user: { name: string; $id: string } | null;
+  userId: any;
+  documentId: any;
+  setUser: React.Dispatch<
+    React.SetStateAction<{ name: string; $id: string } | null>
+  >;
   ready: boolean;
   handleLogout: () => void;
 }
 const ResumeContext = createContext({} as contextProp);
 const ResumeContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<{ name: string, $id:string  } | null>(null);
+  const [user, setUser] = useState<{ name: string; $id: string } | null>(null);
   const [ready, setReady] = useState<boolean>(false);
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem("userId");
   // const [documentId, setDocumentId] = useState('')
   const documentId = userId;
   useEffect(() => {
     const fetchUser = async () => {
       if (!user) {
-          const promise =  account.get();
-          promise.then((response:any)=>{
+        const promise = account.get();
+        promise.then(
+          (response: any) => {
             setUser(response);
             // console.log(response)
-         
-            setReady(true)
-          }, ({response}:any)=>{
-                console.log(response)
-          })
+
+            setReady(true);
+          },
+          ({ response }: any) => {
+            console.log(response);
+          }
+        );
       }
     };
     fetchUser();
@@ -38,23 +43,27 @@ const ResumeContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   // console.log(userId)
   const handleLogout = async () => {
-    try{
+    try {
       const promise = account.deleteSessions();
-      promise.then(()=>{
-        setUser(null);
-        toast.success('Logged out Successfully')
-        navigate("/");
-      }, ({response}:any)=>{
-          console.log(response.message)
-      })
-
-    }catch(e){
-      console.log('Failed to logout', e)
-      toast.error('Failed to logout')
+      promise.then(
+        () => {
+          setUser(null);
+          toast.success("Logged out Successfully");
+          navigate("/");
+        },
+        ({ response }: any) => {
+          console.log(response.message);
+        }
+      );
+    } catch (e) {
+      console.log("Failed to logout", e);
+      toast.error("Failed to logout");
     }
   };
   return (
-    <ResumeContext.Provider value={{ user, setUser, ready, handleLogout, userId, documentId }}>
+    <ResumeContext.Provider
+      value={{ user, setUser, ready, handleLogout, userId, documentId }}
+    >
       {children}
     </ResumeContext.Provider>
   );

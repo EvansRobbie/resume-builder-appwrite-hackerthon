@@ -8,8 +8,10 @@ import { databases } from "../appWrite/AppwriteConfig";
 import { v4 as uuidv4 } from "uuid";
 import FormikControl from "../forms/FormikControl";
 import { databaseId, experienceCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 const Experience = () => {
+  const { user, documentId, userId } = useResumeContext();
   const { subpages } = useParams();
   const navigate = useNavigate();
 
@@ -27,36 +29,38 @@ const Experience = () => {
   });
 
   const [isEdit, setIsEdit] = useState(false);
-  const [documentId, setDocumentId] = useState("");
   useEffect(() => {
     if (subpages === "experience") {
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments(
+          const response = await databases.getDocument(
             databaseId,
-            experienceCollectionId
+            experienceCollectionId,
+            documentId
           );
-          const documents = response.documents;
-          // console.log(documents)
-          if (documents.length > 0) {
-            const document = documents[0];
-            // console.log(document)
-            const updatedInitialValues = {
-              experiences: JSON.parse(document.experiences),
-            };
-            setInitialValues(updatedInitialValues);
-            // console.log(updatedInitialValues.experiences)
-            setDocumentId(document.$id);
-            setIsEdit(true);
-          }
+          // console.log(response)
+          const updatedInitialValues = {
+            experiences: JSON.parse(response.experiences),
+          };
+          setInitialValues(updatedInitialValues);
+          // console.log(updatedInitialValues.experiences)
+
+          setIsEdit(true);
         } catch (e) {
           console.log("Failed to fetch Experience details", e);
-          toast.error("Failed to fetch Experience details");
+          // toast.error("Failed to fetch Experience details");
         }
       };
-      fetchData();
+
+      if (userId === documentId) {
+        fetchData();
+      } else {
+        // userId does not match documentId, set fields to empty
+        setInitialValues(initialValues);
+        setIsEdit(false);
+      }
     }
-  }, [subpages]);
+  }, [subpages, userId]);
   // console.log(documentId)
 
   const onSubmit = async (values: any, onSubmitProps: any) => {
@@ -78,7 +82,7 @@ const Experience = () => {
         const promise = databases.createDocument(
           databaseId,
           experienceCollectionId,
-          uuidv4(),
+          user?.$id,
           {
             experiences: experiencesString,
           }
