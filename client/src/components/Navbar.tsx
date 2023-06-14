@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useResumeContext } from "../context/ResumeContext";
 import Tippy from "@tippyjs/react";
@@ -11,12 +12,18 @@ const Navbar = ({
   handleLoginModal: () => void;
 }) => {
   const { user, handleLogout, ready } = useResumeContext();
-  // if (!ready) {
-  //   // Render a loading state while user data is being fetched
-  //   return <div className="w-screen h-screen absolute top-0 left-0 z-20">Loading...</div>;
-  // }
+  const [scrollNav, setScrollNav] = useState(false);
+  const navScroll = () => {
+    window.scrollY > 30 ? setScrollNav(true) : setScrollNav(false);
+  };
+  useEffect(() => {
+    window.addEventListener("scroll", navScroll);
+    return () => {
+      window.removeEventListener("scroll", navScroll);
+    };
+  });
   return (
-    <div className="absolute top-0 left-0 z-20 opacity-100 h-20 shadow-md shadow-slate-950/20 w-full ">
+    <div className={`${scrollNav ? 'fixed bg-slate-200/50 backdrop-filter backdrop-blur bg-opacity-50': 'absolute '} top-0 left-0 z-20 opacity-100 h-20 shadow-md shadow-slate-950/20 w-full`} >
       <nav className="h-full flex items-center justify-between max-w-6xl px-4 mx-auto">
         <div className="flex items-center gap-2 w-1/2">
           <Link to="/">
