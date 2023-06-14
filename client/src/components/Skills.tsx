@@ -4,40 +4,42 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
-import { v4 as uuidv4 } from "uuid";
 import { databaseId, skillsCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 const Skills = () => {
   const { subpages } = useParams();
+  const { user, documentId, userId } = useResumeContext();
   const navigate = useNavigate();
   const [content, setContent] = useState("");
   const [isEdit, setIsEdit] = useState(false);
-  const [documentId, setDocumentId] = useState<string>("");
   useEffect(() => {
     if (subpages === "skills") {
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments(
+          const response = await databases.getDocument(
             databaseId,
-            skillsCollectionId
+            skillsCollectionId,
+            documentId
           );
-          const documents = response.documents;
-          // console.log(documents[0].name)
-          if (documents.length > 0) {
-            const document = documents[0];
-            // console.log(document.content)
-            setContent(document.content);
-            setDocumentId(document.$id);
+         
+            setContent(response.content);
             setIsEdit(true);
-          }
+          
         } catch (e) {
           console.log("Failed to fetch Skills details", e);
-          toast.error("Failed to fetch Skills details");
+          // toast.error("Failed to fetch Skills details");
         }
       };
-      fetchData();
+      if (userId === documentId) {
+        fetchData();
+      } else {
+        // userId does not match documentId, set fields to empty
+        setContent(content);
+        setIsEdit(false);
+      }
     }
-  }, [subpages]);
+  }, [subpages, userId, user]);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -56,7 +58,7 @@ const Skills = () => {
         const promise = databases.createDocument(
           databaseId,
           skillsCollectionId,
-          uuidv4(),
+          user?.$id,
           { content }
         );
         promise.then(

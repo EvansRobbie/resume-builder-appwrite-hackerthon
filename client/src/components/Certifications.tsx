@@ -5,42 +5,52 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "./DeleteButton";
 import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { certificateCollectionId, databaseId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 const Certifications = () => {
   const { subpages } = useParams();
+  const { user, documentId, userId } = useResumeContext();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState({
     certificate: "",
   });
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [documentId, setDocumentId] = useState<string>("");
+  // const [documentId, setDocumentId] = useState<string>("");
   useEffect(() => {
     if (subpages === "certifications") {
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments(
+          const promise = databases.getDocument(
             databaseId,
-            certificateCollectionId
+            certificateCollectionId,
+            documentId
           );
-          const documents = response.documents;
-          // console.log(documents[0].name)
-          if (documents.length > 0) {
-            const document = documents[0];
-            // console.log(document)
-            setInitialValues(document);
-            setDocumentId(document.$id);
+          promise.then((response:any)=>{
+            setInitialValues(response);
             setIsEdit(true);
-          }
+
+          }, ({ response }: any) => {
+            console.log(response.message);
+            toast.error(`Please Fill in the details. ${response.message}`);
+          })
+          
+          
         } catch (e) {
           console.log("Failed to fetch Certification details", e);
           toast.error("Failed to fetch Certification details");
         }
       };
-      fetchData();
+      if (userId === documentId) {
+        fetchData();
+      } else {
+        // userId does not match documentId, set fields to empty
+        setInitialValues(initialValues);
+        setIsEdit(false);
+      }
     }
-  }, [subpages]);
+  }, [subpages, userId, user]);
   const onSubmit = async (values: any, onSubmitProps: any) => {
     try {
       if (isEdit) {
@@ -57,7 +67,7 @@ const Certifications = () => {
         const promise = databases.createDocument(
           databaseId,
           certificateCollectionId,
-          uuidv4(),
+          user?.$id,
           values
         );
         promise.then(

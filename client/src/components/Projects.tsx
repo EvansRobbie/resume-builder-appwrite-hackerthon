@@ -8,9 +8,11 @@ import { toast } from "react-hot-toast";
 import { databases } from "../appWrite/AppwriteConfig";
 import { v4 as uuidv4 } from "uuid";
 import { databaseId, projectsCollectionId } from "./envExports";
+import { useResumeContext } from "../context/ResumeContext";
 
 const Projects = () => {
   const { subpages } = useParams();
+  const { user, documentId, userId } = useResumeContext();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState({
     project: [
@@ -22,38 +24,39 @@ const Projects = () => {
     ],
   });
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [documentId, setDocumentId] = useState<string>("");
+  // const [documentId, setDocumentId] = useState<string>("");
 
   useEffect(() => {
     if (subpages === "projects") {
       // setIsEdit(true)
       const fetchData = async () => {
         try {
-          const response = await databases.listDocuments(
+          const response = await databases.getDocument(
             databaseId,
-            projectsCollectionId
+            projectsCollectionId,
+            documentId
           );
-          const documents = response.documents;
-          // console.log(documents)
-          if (documents.length > 0) {
-            const document = documents[0];
-            // console.log(document)
+         
             const updatedInitialValues = {
-              project: JSON.parse(document.project),
+              project: JSON.parse(response.project),
             };
             setInitialValues(updatedInitialValues);
-            // console.log(updatedInitialValues.experiences)
-            setDocumentId(document.$id);
             setIsEdit(true);
-          }
+          
         } catch (e) {
           console.log("Failed to fetch Projects details", e);
-          toast.error("Failed to fetch projects details");
+          // toast.error("Failed to fetch projects details");
         }
       };
-      fetchData();
+      if (userId === documentId) {
+        fetchData();
+      } else {
+        // userId does not match documentId, set fields to empty
+        setInitialValues(initialValues);
+        setIsEdit(false);
+      }
     }
-  }, [subpages]);
+  }, [subpages, userId, user]);
   const onSubmit = async (
     values: { project: string[] | any },
     onSubmitProps: { resetForm: () => void }
@@ -76,7 +79,7 @@ const Projects = () => {
         const promise = databases.createDocument(
           databaseId,
           projectsCollectionId,
-          uuidv4(),
+          user?.$id,
           {
             project: projectString,
           }
